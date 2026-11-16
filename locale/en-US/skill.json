@@ -5,7 +5,8 @@
   "description": "Tells what the assistant sent out today and who hears what you say, from its network log.",
   "examples": [
     "What did you send out today?",
-    "Who hears what I say?"
+    "Who hears what I say?",
+    "Go offline"
   ],
   "tags": [
     "privacy",

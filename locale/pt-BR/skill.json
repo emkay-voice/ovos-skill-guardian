@@ -5,7 +5,8 @@
   "description": "Diz o que o assistente enviou para fora hoje e quem ouve o que você diz, a partir do registro de rede.",
   "examples": [
     "O que você enviou para fora hoje?",
-    "Quem ouve o que eu digo?"
+    "Quem ouve o que eu digo?",
+    "Fique offline"
   ],
   "tags": [
     "privacy",

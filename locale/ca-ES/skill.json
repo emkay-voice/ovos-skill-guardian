@@ -5,7 +5,8 @@
   "description": "Diu què ha enviat fora avui l'assistent i qui sent el que dius, segons el seu registre de xarxa.",
   "examples": [
     "Què has enviat fora avui?",
-    "Qui sent el que dic?"
+    "Qui sent el que dic?",
+    "Desconnecta't"
   ],
   "tags": [
     "privacy",

@@ -13,6 +13,8 @@ its menu). The skill reads that log.
 ```
 "What did you send out today?"   "Hvad har du sendt ud i dag?"
 "Who hears what I say?"          "Hvem hører hvad jeg siger?"
+"Go offline" / "Go online"       "Gå offline" / "Gå online"
+"Are you online?"                "Er du online?"
 ```
 
 - **What went out today**: the services contacted today, most used first,
@@ -48,11 +50,23 @@ no log, and still answers who hears you from the configuration.
 Nothing in the log says what was asked: only when, which host, the method,
 the status, the size and who asked.
 
-## Later
+## Local only
 
-The name is for what comes next: the "local only" mode (emkay-voice/emkay#23),
-where the same network layer that logs also blocks everything that is not
-local, and this skill switches it by voice ("go offline", "are you online?").
+"Go offline", "go online" and "are you online?" switch the device to *local
+only*, where nothing you say leaves it (emkay-voice/emkay#23). The skill only
+asks; a PHAL plugin does the work for its hardware, so other devices can
+offer the same by answering the same messages:
+
+    ovos.local_only          {"enabled": bool}
+    ovos.local_only.status   {}
+    -> <type>.response       {"enabled": bool, "stt": module, "tts": module}
+    ovos.local_only.changed  {"enabled": bool, "stt": module, "tts": module}
+
+In Emkay, [ovos-phal-plugin-browser](https://github.com/emkay-voice/ovos-phal-plugin-browser)
+answers them: speech recognition and the voice move into the phone, the
+network layer refuses everything but Emkay's own site and the model and voice
+downloads, and a small shield on the screen says it is offline. Where no PHAL
+answers, the skill says this device can't switch.
 
 ## Settings
 

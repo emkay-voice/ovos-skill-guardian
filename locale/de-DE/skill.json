@@ -5,7 +5,8 @@
   "description": "Sagt, was der Assistent heute nach draußen geschickt hat und wer hört, was du sagst, aus seinem Netzwerkprotokoll.",
   "examples": [
     "Was hast du heute nach draußen geschickt?",
-    "Wer hört, was ich sage?"
+    "Wer hört, was ich sage?",
+    "Geh offline"
   ],
   "tags": [
     "privacy",

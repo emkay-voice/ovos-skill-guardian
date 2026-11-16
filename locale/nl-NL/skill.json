@@ -5,7 +5,8 @@
   "description": "Vertelt wat de assistent vandaag naar buiten heeft gestuurd en wie hoort wat je zegt, uit zijn netwerklogboek.",
   "examples": [
     "Wat heb je vandaag naar buiten gestuurd?",
-    "Wie hoort wat ik zeg?"
+    "Wie hoort wat ik zeg?",
+    "Ga offline"
   ],
   "tags": [
     "privacy",

@@ -5,7 +5,8 @@
   "description": "Laguntzaileak gaur kanpora zer bidali duen eta esaten duzuna nork entzuten duen esaten du, bere sare-erregistroaren arabera.",
   "examples": [
     "Zer bidali duzu kanpora gaur?",
-    "Nork entzuten du esaten dudana?"
+    "Nork entzuten du esaten dudana?",
+    "Deskonektatu"
   ],
   "tags": [
     "privacy",

@@ -94,3 +94,44 @@ def test_every_dialog_exists(lang):
              *(f"kind_{k}" for k in pkg.KINDS)]
     for d in names:
         assert (loc / f"{d}.dialog").read_text(encoding="utf-8").strip(), d
+
+
+# -- local only --------------------------------------------------------------
+
+def phal(skill, enabled):
+    """A PHAL plugin that answers ovos.local_only[.status]."""
+    state = {"enabled": enabled}
+
+    def switch(m):
+        m = Message.deserialize(m) if isinstance(m, str) else m
+        state["enabled"] = m.data["enabled"]
+        skill.bus.emit(m.response({**state, "stt": "x", "tts": "y"}))
+
+    def ask(m):
+        m = Message.deserialize(m) if isinstance(m, str) else m
+        skill.bus.emit(m.response({**state, "stt": "x", "tts": "y"}))
+    skill.bus.on("ovos.local_only", switch)
+    skill.bus.on("ovos.local_only.status", ask)
+    return state
+
+
+def last(skill):
+    return skill.spoken[-1].data["meta"]["dialog"]
+
+
+def test_go_offline_and_online(skill):
+    state = phal(skill, False)
+    skill.handle_go_offline(Message("x"))
+    assert state["enabled"] and last(skill) == "offline_on"
+    skill.handle_are_you_online(Message("x"))
+    assert last(skill) == "status_local_only"
+    skill.handle_go_online(Message("x"))
+    assert not state["enabled"] and last(skill) == "offline_off"
+    skill.handle_are_you_online(Message("x"))
+    assert last(skill) == "status_online"
+
+
+def test_no_phal(skill, monkeypatch):
+    monkeypatch.setattr(pkg, "ANSWER_TIMEOUT", 0.2)
+    skill.handle_go_offline(Message("x"))
+    assert last(skill) == "no_local_only"

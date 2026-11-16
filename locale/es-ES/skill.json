@@ -5,7 +5,8 @@
   "description": "Dice qué ha enviado fuera el asistente hoy y quién oye lo que dices, según su registro de red.",
   "examples": [
     "¿Qué has enviado fuera hoy?",
-    "¿Quién oye lo que digo?"
+    "¿Quién oye lo que digo?",
+    "Desconéctate"
   ],
   "tags": [
     "privacy",

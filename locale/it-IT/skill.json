@@ -5,7 +5,8 @@
   "description": "Dice cosa ha inviato fuori oggi l'assistente e chi sente quello che dici, dal suo registro di rete.",
   "examples": [
     "Cosa hai inviato fuori oggi?",
-    "Chi sente quello che dico?"
+    "Chi sente quello che dico?",
+    "Vai offline"
   ],
   "tags": [
     "privacy",

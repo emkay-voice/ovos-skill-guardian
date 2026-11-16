@@ -189,5 +189,104 @@ for lang, d in T.items():
         "skill_id": "ovos-skill-guardian.emkay-voice",
         "source": "https://github.com/emkay-voice/ovos-skill-guardian",
         "name": d["name"], "description": d["description"], "examples": d["examples"],
-        "tags": ["privacy", "network", "emkay"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        "tags": ["privacy", "network", "emkay"],
+        "icon": "https://raw.githubusercontent.com/emkay-voice/ovos-skill-guardian/main/res/icon.png"}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(lang)
+
+# -- local only ("go offline", "go online", "are you online?") ----------------
+# intents: go_offline, go_online, are_you_online; dialogs: offline_on,
+# offline_off, status_online, status_local_only, no_local_only
+OFFLINE = {
+"de-DE": (["geh offline", "(schalte|aktiviere) nur lokal [ein]", "hör auf das internet zu benutzen", "behalte alles (hier|auf dem gerät)", "schick nichts nach draußen"],
+          ["geh online", "(schalte|deaktiviere) nur lokal [aus]", "benutze das internet wieder", "du darfst wieder online gehen"],
+          ["bist du online", "bist du offline", "ist nur lokal (an|aus)", "benutzt du [gerade] das internet"],
+          "Ich bin jetzt offline. Ich höre und spreche hier auf dem Gerät, und nichts von dem, was du sagst, verlässt es. Beim ersten Mal lade ich die Sprachmodelle einmal herunter.",
+          "Ich bin wieder online.",
+          "Ich bin online: was du sagst, kann an die Sprachdienste in meinen Einstellungen gehen.",
+          "Ich bin im Modus nur lokal: nichts von dem, was du sagst, verlässt das Gerät.",
+          "Dieses Gerät kann von hier aus nicht auf nur lokal umschalten."),
+"nl-NL": (["ga offline", "(zet|schakel) alleen lokaal aan", "stop met het internet gebruiken", "houd alles (hier|op het apparaat)", "stuur niets naar buiten"],
+          ["ga online", "(zet|schakel) alleen lokaal uit", "gebruik het internet weer", "je mag weer online gaan"],
+          ["ben je online", "ben je offline", "staat alleen lokaal (aan|uit)", "gebruik je [nu] het internet"],
+          "Ik ben nu offline. Ik luister en spreek hier op het apparaat, en niets van wat je zegt verlaat het. De eerste keer download ik de spraakmodellen één keer.",
+          "Ik ben weer online.",
+          "Ik ben online: wat je zegt kan naar de spraakdiensten in mijn instellingen gaan.",
+          "Ik sta op alleen lokaal: niets van wat je zegt verlaat het apparaat.",
+          "Dit apparaat kan van hieruit niet naar alleen lokaal overschakelen."),
+"fr-FR": (["passe hors ligne", "active le mode local [uniquement]", "arrête d'utiliser internet", "garde tout (ici|sur l'appareil)", "n'envoie rien à l'extérieur"],
+          ["passe en ligne", "désactive le mode local [uniquement]", "utilise de nouveau internet", "tu peux repasser en ligne"],
+          ["es-tu en ligne", "es-tu hors ligne", "le mode local est-il (activé|désactivé)", "utilises-tu internet [maintenant]"],
+          "Je suis hors ligne. J'écoute et je parle ici sur l'appareil, et rien de ce que tu dis n'en sort. La première fois, je télécharge les modèles vocaux une fois.",
+          "Je suis de nouveau en ligne.",
+          "Je suis en ligne : ce que tu dis peut aller aux services vocaux de mes réglages.",
+          "Je suis en mode local uniquement : rien de ce que tu dis ne quitte l'appareil.",
+          "Cet appareil ne peut pas passer en mode local d'ici."),
+"es-ES": (["desconéctate", "(activa|pon) el modo solo local", "deja de usar internet", "guarda todo (aquí|en el dispositivo)", "no envíes nada fuera"],
+          ["conéctate", "(desactiva|quita) el modo solo local", "vuelve a usar internet", "puedes volver a conectarte"],
+          ["estás conectado", "estás desconectado", "está el modo solo local (activado|desactivado)", "usas internet [ahora]"],
+          "Ya estoy sin conexión. Escucho y hablo aquí en el dispositivo, y nada de lo que dices sale de él. La primera vez descargo los modelos de voz una sola vez.",
+          "Vuelvo a estar conectado.",
+          "Estoy conectado: lo que dices puede ir a los servicios de voz de mis ajustes.",
+          "Estoy en modo solo local: nada de lo que dices sale del dispositivo.",
+          "Este dispositivo no puede cambiar a solo local desde aquí."),
+"it-IT": (["vai offline", "(attiva|accendi) la modalità solo locale", "smetti di usare internet", "tieni tutto (qui|sul dispositivo)", "non mandare niente fuori"],
+          ["vai online", "(disattiva|spegni) la modalità solo locale", "usa di nuovo internet", "puoi tornare online"],
+          ["sei online", "sei offline", "la modalità solo locale è (attiva|spenta)", "usi internet [adesso]"],
+          "Ora sono offline. Ascolto e parlo qui sul dispositivo, e niente di quello che dici ne esce. La prima volta scarico i modelli vocali una volta sola.",
+          "Sono di nuovo online.",
+          "Sono online: quello che dici può andare ai servizi vocali delle mie impostazioni.",
+          "Sono in modalità solo locale: niente di quello che dici esce dal dispositivo.",
+          "Questo dispositivo non può passare a solo locale da qui."),
+"pt-BR": (["fique offline", "(ative|ligue) o modo só local", "pare de usar a internet", "mantenha tudo (aqui|no aparelho)", "não envie nada para fora"],
+          ["fique online", "(desative|desligue) o modo só local", "use a internet de novo", "você pode ficar online de novo"],
+          ["você está online", "você está offline", "o modo só local está (ligado|desligado)", "você está usando a internet [agora]"],
+          "Agora estou offline. Ouço e falo aqui no aparelho, e nada do que você diz sai dele. Na primeira vez, baixo os modelos de voz uma vez.",
+          "Estou online de novo.",
+          "Estou online: o que você diz pode ir para os serviços de voz das minhas configurações.",
+          "Estou no modo só local: nada do que você diz sai do aparelho.",
+          "Este aparelho não consegue mudar para só local daqui."),
+"pt-PT": (["fica offline", "(ativa|liga) o modo só local", "deixa de usar a internet", "mantém tudo (aqui|no dispositivo)", "não envies nada para fora"],
+          ["fica online", "(desativa|desliga) o modo só local", "usa a internet outra vez", "podes voltar a ficar online"],
+          ["estás online", "estás offline", "o modo só local está (ligado|desligado)", "estás a usar a internet [agora]"],
+          "Agora estou offline. Oiço e falo aqui no dispositivo, e nada do que dizes sai dele. Da primeira vez, descarrego os modelos de voz uma vez.",
+          "Estou novamente online.",
+          "Estou online: o que dizes pode ir para os serviços de voz das minhas definições.",
+          "Estou no modo só local: nada do que dizes sai do dispositivo.",
+          "Este dispositivo não consegue mudar para só local a partir daqui."),
+"ca-ES": (["desconnecta't", "(activa|posa) el mode només local", "deixa d'utilitzar internet", "guarda-ho tot (aquí|al dispositiu)", "no enviïs res a fora"],
+          ["connecta't", "(desactiva|treu) el mode només local", "torna a utilitzar internet", "pots tornar a connectar-te"],
+          ["estàs connectat", "estàs desconnectat", "el mode només local està (activat|desactivat)", "fas servir internet [ara]"],
+          "Ara estic desconnectat. Escolto i parlo aquí al dispositiu, i res del que dius en surt. La primera vegada descarrego els models de veu un cop.",
+          "Torno a estar connectat.",
+          "Estic connectat: el que dius pot anar als serveis de veu de la meva configuració.",
+          "Estic en mode només local: res del que dius surt del dispositiu.",
+          "Aquest dispositiu no pot canviar a només local des d'aquí."),
+"gl-ES": (["desconéctate", "(activa|pon) o modo só local", "deixa de usar internet", "garda todo (aquí|no dispositivo)", "non envíes nada fóra"],
+          ["conéctate", "(desactiva|quita) o modo só local", "volve usar internet", "podes volver conectarte"],
+          ["estás conectado", "estás desconectado", "o modo só local está (activado|desactivado)", "usas internet [agora]"],
+          "Agora estou sen conexión. Escoito e falo aquí no dispositivo, e nada do que dis sae del. A primeira vez descargo os modelos de voz unha vez.",
+          "Volvo estar conectado.",
+          "Estou conectado: o que dis pode ir aos servizos de voz da miña configuración.",
+          "Estou en modo só local: nada do que dis sae do dispositivo.",
+          "Este dispositivo non pode cambiar a só local desde aquí."),
+"eu-ES": (["deskonektatu", "(aktibatu|piztu) tokiko modua bakarrik", "utzi internet erabiltzeari", "gorde dena (hemen|gailuan)", "ez bidali ezer kanpora"],
+          ["konektatu", "(desaktibatu|itzali) tokiko modua", "erabili berriro internet", "berriro konekta zaitezke"],
+          ["konektatuta zaude", "deskonektatuta zaude", "tokiko modua (piztuta|itzalita) dago", "internet erabiltzen ari zara [orain]"],
+          "Orain deskonektatuta nago. Hemen entzuten eta hitz egiten dut gailuan, eta esaten duzun ezer ez da ateratzen. Lehen aldian ahots-ereduak behin deskargatzen ditut.",
+          "Berriro konektatuta nago.",
+          "Konektatuta nago: esaten duzuna nire ezarpenetako ahots-zerbitzuetara joan daiteke.",
+          "Tokiko moduan bakarrik nago: esaten duzun ezer ez da gailutik ateratzen.",
+          "Gailu honek ezin du hemendik tokiko modura aldatu."),
+}
+for lang, (off, on, ask, *dialogs) in OFFLINE.items():
+    loc = Path("locale", lang)
+    for name, lines in (("go_offline", off), ("go_online", on), ("are_you_online", ask)):
+        (loc / f"{name}.intent").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    for name, text in zip(("offline_on", "offline_off", "status_online", "status_local_only", "no_local_only"), dialogs):
+        (loc / f"{name}.dialog").write_text(text + "\n", encoding="utf-8")
+    sj = loc / "skill.json"
+    meta = json.loads(sj.read_text(encoding="utf-8"))
+    example = off[0][0].upper() + off[0][1:]
+    if example not in meta["examples"]:
+        meta["examples"].append(example)
+    sj.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

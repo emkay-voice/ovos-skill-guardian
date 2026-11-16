@@ -5,7 +5,8 @@
   "description": "Dit ce que l'assistant a envoyé dehors aujourd'hui et qui entend ce que tu dis, d'après son journal réseau.",
   "examples": [
     "Qu'as-tu envoyé dehors aujourd'hui ?",
-    "Qui entend ce que je dis ?"
+    "Qui entend ce que je dis ?",
+    "Passe hors ligne"
   ],
   "tags": [
     "privacy",

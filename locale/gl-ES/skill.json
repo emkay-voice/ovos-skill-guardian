@@ -5,7 +5,8 @@
   "description": "Di que enviou fóra hoxe o asistente e quen oe o que dis, segundo o seu rexistro de rede.",
   "examples": [
     "Que enviaches fóra hoxe?",
-    "Quen oe o que digo?"
+    "Quen oe o que digo?",
+    "Desconéctate"
   ],
   "tags": [
     "privacy",

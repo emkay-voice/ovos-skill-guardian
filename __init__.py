@@ -13,6 +13,18 @@ and answers:
   first, with how many times
 - "who hears what I say?": where speech recognition happens, from the STT
   plugin in the configuration and the log
+- "go offline", "go online", "are you online?": "local only", where nothing
+  leaves the device. The device does it and answers on the bus:
+
+      ovos.local_only         {"enabled": bool}
+      ovos.local_only.status  {}
+      -> <type>.response               {"enabled": bool, "stt": module, "tts": module}
+
+  The messages are hardware-neutral: a PHAL plugin answers them for its
+  device. In Emkay that is ovos-phal-plugin-browser (speech recognition and
+  voice on the phone, the network refused but for its own site and model
+  downloads, a shield on the screen); on other hardware another PHAL plugin
+  can do the same. Without an answer the skill says this device can't.
 
 Without a log (an OVOS device that writes none) it says so, and answers from
 the configuration alone. Settings:
@@ -65,6 +77,10 @@ def read_log(path: str, since: float = 0) -> list:
 def start_of_today() -> float:
     lt = time.localtime()
     return time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, 0, 0, 0, 0, 0, -1))
+
+
+#: seconds to wait for the device to answer a local only request
+ANSWER_TIMEOUT = 5
 
 
 class GuardianSkill(OVOSSkill):
@@ -140,3 +156,33 @@ class GuardianSkill(OVOSSkill):
         if hosts:
             return self.speak_dialog("stt_remote_seen", {"module": module, "hosts": self.join(hosts)})
         self.speak_dialog("stt_remote", {"module": module or "?"})
+
+    # -- local only ----------------------------------------------------------
+
+    def local_only(self, what: str = "", **data):
+        """Ask the device (ovos.local_only[.what]); its answer or None."""
+        msg_type = "ovos.local_only" + (f".{what}" if what else "")
+        reply = self.bus.wait_for_response(Message(msg_type, data), f"{msg_type}.response",
+                                           timeout=ANSWER_TIMEOUT)
+        return reply.data if reply else None
+
+    @intent_handler("go_offline.intent")
+    def handle_go_offline(self, message: Message):
+        state = self.local_only(enabled=True)
+        if state is None:
+            return self.speak_dialog("no_local_only")
+        self.speak_dialog("offline_on")
+
+    @intent_handler("go_online.intent")
+    def handle_go_online(self, message: Message):
+        state = self.local_only(enabled=False)
+        if state is None:
+            return self.speak_dialog("no_local_only")
+        self.speak_dialog("offline_off")
+
+    @intent_handler("are_you_online.intent")
+    def handle_are_you_online(self, message: Message):
+        state = self.local_only("status")
+        if state is None or not state.get("enabled"):
+            return self.speak_dialog("status_online")
+        self.speak_dialog("status_local_only")
