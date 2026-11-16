@@ -278,7 +278,32 @@ OFFLINE = {
           "Tokiko moduan bakarrik nago: esaten duzun ezer ez da gailutik ateratzen.",
           "Gailu honek ezin du hemendik tokiko modura aldatu."),
 }
+# more ways to say it: privacy on/off, block/open the network
+OFFLINE_MORE = {
+"de-DE": (["(schalte|aktiviere) (die privatsphäre|den privatsphäremodus) ein", "privatsphäre an", "(blockiere|sperre|trenne) das (netzwerk|internet)"],
+          ["(schalte|deaktiviere) (die privatsphäre|den privatsphäremodus) aus", "privatsphäre aus", "(öffne|entsperre) das (netzwerk|internet)"]),
+"nl-NL": (["(zet|schakel) (privacy|de privacymodus) aan", "privacy aan", "(blokkeer|sluit) het (netwerk|internet)"],
+          ["(zet|schakel) (privacy|de privacymodus) uit", "privacy uit", "(open|deblokkeer) het (netwerk|internet)"]),
+"fr-FR": (["active le mode confidentialité", "confidentialité activée", "(bloque|coupe|ferme) (le réseau|internet)"],
+          ["désactive le mode confidentialité", "confidentialité désactivée", "(ouvre|débloque) (le réseau|internet)"]),
+"es-ES": (["activa el modo privacidad", "privacidad activada", "(bloquea|corta|cierra) (la red|internet)"],
+          ["desactiva el modo privacidad", "privacidad desactivada", "(abre|desbloquea) (la red|internet)"]),
+"it-IT": (["attiva la modalità privacy", "privacy attiva", "(blocca|chiudi|taglia) (la rete|internet)"],
+          ["disattiva la modalità privacy", "privacy disattiva", "(apri|sblocca) (la rete|internet)"]),
+"pt-BR": (["ative o modo privacidade", "privacidade ligada", "(bloqueie|feche|corte) (a rede|a internet)"],
+          ["desative o modo privacidade", "privacidade desligada", "(abra|desbloqueie) (a rede|a internet)"]),
+"pt-PT": (["ativa o modo privacidade", "privacidade ligada", "(bloqueia|fecha|corta) (a rede|a internet)"],
+          ["desativa o modo privacidade", "privacidade desligada", "(abre|desbloqueia) (a rede|a internet)"]),
+"ca-ES": (["activa el mode privacitat", "privacitat activada", "(bloqueja|talla|tanca) (la xarxa|internet)"],
+          ["desactiva el mode privacitat", "privacitat desactivada", "(obre|desbloqueja) (la xarxa|internet)"]),
+"gl-ES": (["activa o modo privacidade", "privacidade activada", "(bloquea|corta|pecha) (a rede|internet)"],
+          ["desactiva o modo privacidade", "privacidade desactivada", "(abre|desbloquea) (a rede|internet)"]),
+"eu-ES": (["aktibatu pribatutasun modua", "pribatutasuna piztuta", "(blokeatu|itxi|moztu) (sarea|internet)"],
+          ["desaktibatu pribatutasun modua", "pribatutasuna itzalita", "(ireki|desblokeatu) (sarea|internet)"]),
+}
 for lang, (off, on, ask, *dialogs) in OFFLINE.items():
+    more_off, more_on = OFFLINE_MORE.get(lang, ([], []))
+    off, on = off + more_off, on + more_on
     loc = Path("locale", lang)
     for name, lines in (("go_offline", off), ("go_online", on), ("are_you_online", ask)):
         (loc / f"{name}.intent").write_text("\n".join(lines) + "\n", encoding="utf-8")

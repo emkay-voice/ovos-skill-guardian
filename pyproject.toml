@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ovos-skill-guardian"
-version = "0.1.0a4"
+version = "0.1.0a5"
 description = "OpenVoiceOS skill: your privacy by voice. What the assistant sent out today, who hears what you say, and going offline (local only)"
 readme = "README.md"
 license = {text = "Apache-2.0"}

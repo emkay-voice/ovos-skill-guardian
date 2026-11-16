@@ -17,6 +17,8 @@ device's PHAL plugin to switch; other devices can answer the same messages.
 "What did you send out today?"   "Hvad har du sendt ud i dag?"
 "Who hears what I say?"          "Hvem hører hvad jeg siger?"
 "Go offline" / "Go online"       "Gå offline" / "Gå online"
+"Privacy on" / "Privacy off"     "Privatliv til" / "Privatliv fra"
+"Block the internet"             "Luk for internettet"
 "Are you online?"                "Er du online?"
 ```
 
