@@ -2,11 +2,12 @@
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
   "name": "Guardião",
-  "description": "Diz o que o assistente enviou para fora hoje e quem ouve o que dizes, a partir do registo de rede.",
+  "description": "A tua privacidade por voz: o que o assistente enviou hoje, quem ouve o que dizes e o modo offline, para que nada do que dizes saia do dispositivo.",
   "examples": [
     "O que enviaste para fora hoje?",
     "Quem ouve o que eu digo?",
-    "Fica offline"
+    "Fica offline",
+    "Estás online?"
   ],
   "tags": [
     "privacy",

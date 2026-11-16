@@ -1,12 +1,15 @@
 # <img src='res/icon.png' width='50' height='50' style='vertical-align:bottom'/> Guardian
 
-An [OpenVoiceOS](https://openvoiceos.org) skill that tells what the assistant
-sent out on the network today, and who hears what you say. Privacy as
-something you can ask about, not just a setting.
+An [OpenVoiceOS](https://openvoiceos.org) skill for your privacy, by voice:
+it tells what the assistant sent out on the network today and who hears
+what you say, and it switches the device offline ("local only") so nothing
+you say leaves it, and back online. Privacy as something you can ask about
+and switch, not just a setting.
 
 It is made for [Emkay](https://github.com/emkay-voice/emkay), OpenVoiceOS in
 the browser, which keeps a log of everything it contacts (⚙ → Network in
-its menu). The skill reads that log.
+its menu) and can run local only. The skill reads that log, and asks the
+device's PHAL plugin to switch; other devices can answer the same messages.
 
 ## Usage
 

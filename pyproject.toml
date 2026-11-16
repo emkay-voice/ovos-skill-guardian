@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ovos-skill-guardian"
-version = "0.1.0a3"
-description = "OpenVoiceOS skill: what the assistant sent out today and who hears what you say, from its network log"
+version = "0.1.0a4"
+description = "OpenVoiceOS skill: your privacy by voice. What the assistant sent out today, who hears what you say, and going offline (local only)"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [{name = "Andreas Lorensen"}]

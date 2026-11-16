@@ -2,11 +2,12 @@
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
   "name": "Guardian",
-  "description": "Tells what the assistant sent out today and who hears what you say, from its network log.",
+  "description": "Your privacy by voice: what the assistant sent out today, who hears what you say, and going offline so nothing you say leaves the device.",
   "examples": [
     "What did you send out today?",
     "Who hears what I say?",
-    "Go offline"
+    "Go offline",
+    "Are you online?"
   ],
   "tags": [
     "privacy",

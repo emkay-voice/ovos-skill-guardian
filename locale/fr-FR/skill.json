@@ -2,11 +2,12 @@
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
   "name": "Gardien",
-  "description": "Dit ce que l'assistant a envoyé dehors aujourd'hui et qui entend ce que tu dis, d'après son journal réseau.",
+  "description": "Ta vie privée à la voix : ce que l'assistant a envoyé aujourd'hui, qui entend ce que tu dis, et le mode hors ligne pour que rien de ce que tu dis ne quitte l'appareil.",
   "examples": [
     "Qu'as-tu envoyé dehors aujourd'hui ?",
     "Qui entend ce que je dis ?",
-    "Passe hors ligne"
+    "Passe hors ligne",
+    "Es-tu en ligne ?"
   ],
   "tags": [
     "privacy",

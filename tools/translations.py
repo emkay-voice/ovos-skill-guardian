@@ -12,7 +12,7 @@ KINDS = ("stt", "tts", "translate", "wikipedia", "models", "store", "packages",
 
 T = {
 "de-DE": {
- "name": "Wächter", "description": "Sagt, was der Assistent heute nach draußen geschickt hat und wer hört, was du sagst, aus seinem Netzwerkprotokoll.",
+ "name": "Wächter", "description": "Deine Privatsphäre per Stimme: was der Assistent heute nach draußen geschickt hat, wer hört, was du sagst, und offline gehen, damit nichts, was du sagst, das Gerät verlässt.",
  "examples": ["Was hast du heute nach draußen geschickt?", "Wer hört, was ich sage?"],
  "sent_today.intent": ["was hast du heute (nach draußen|ins internet) geschickt", "was hast du heute kontaktiert", "mit wem hast du heute gesprochen", "welche dienste hast du heute benutzt"],
  "who_hears_me.intent": ["wer hört was ich sage", "wohin geht meine (stimme|sprache)", "an wen schickst du meine (stimme|sprache)", "wer hört mit", "wo wird meine sprache erkannt"],
@@ -28,7 +28,7 @@ T = {
  "kinds": ["Spracherkennung", "die Stimme", "Übersetzung", "Wikipedia", "Modell-Downloads", "der Skill-Store", "Paketinstallationen", "Pyodide-Pakete", "GitHub", "das Wetter", "Radio und Nachrichten"],
 },
 "nl-NL": {
- "name": "Wachter", "description": "Vertelt wat de assistent vandaag naar buiten heeft gestuurd en wie hoort wat je zegt, uit zijn netwerklogboek.",
+ "name": "Wachter", "description": "Je privacy met je stem: wat de assistent vandaag naar buiten stuurde, wie hoort wat je zegt, en offline gaan zodat niets van wat je zegt het apparaat verlaat.",
  "examples": ["Wat heb je vandaag naar buiten gestuurd?", "Wie hoort wat ik zeg?"],
  "sent_today.intent": ["wat heb je vandaag (naar buiten|naar het internet) gestuurd", "wat heb je vandaag benaderd", "met wie heb je vandaag gepraat", "welke diensten heb je vandaag gebruikt"],
  "who_hears_me.intent": ["wie hoort wat ik zeg", "waar gaat mijn (stem|spraak) naartoe", "naar wie stuur je mijn (stem|spraak)", "wie luistert mee", "waar wordt mijn spraak herkend"],
@@ -44,7 +44,7 @@ T = {
  "kinds": ["spraakherkenning", "de stem", "vertaling", "Wikipedia", "modeldownloads", "de skillwinkel", "pakketinstallaties", "Pyodide-pakketten", "GitHub", "het weer", "radio en nieuws"],
 },
 "fr-FR": {
- "name": "Gardien", "description": "Dit ce que l'assistant a envoyé dehors aujourd'hui et qui entend ce que tu dis, d'après son journal réseau.",
+ "name": "Gardien", "description": "Ta vie privée à la voix : ce que l'assistant a envoyé aujourd'hui, qui entend ce que tu dis, et le mode hors ligne pour que rien de ce que tu dis ne quitte l'appareil.",
  "examples": ["Qu'as-tu envoyé dehors aujourd'hui ?", "Qui entend ce que je dis ?"],
  "sent_today.intent": ["qu'as-tu envoyé (dehors|sur internet) aujourd'hui", "qu'as-tu contacté aujourd'hui", "à qui as-tu parlé aujourd'hui", "quels services as-tu utilisés aujourd'hui"],
  "who_hears_me.intent": ["qui entend ce que je dis", "où va ma (voix|parole)", "à qui envoies-tu ma (voix|parole)", "qui m'écoute", "où ma parole est-elle reconnue"],
@@ -60,7 +60,7 @@ T = {
  "kinds": ["la reconnaissance vocale", "la voix", "la traduction", "Wikipédia", "les téléchargements de modèles", "la boutique de skills", "les installations de paquets", "les paquets Pyodide", "GitHub", "la météo", "la radio et les infos"],
 },
 "es-ES": {
- "name": "Guardián", "description": "Dice qué ha enviado fuera el asistente hoy y quién oye lo que dices, según su registro de red.",
+ "name": "Guardián", "description": "Tu privacidad con la voz: qué ha enviado hoy el asistente, quién oye lo que dices y el modo sin conexión para que nada de lo que dices salga del dispositivo.",
  "examples": ["¿Qué has enviado fuera hoy?", "¿Quién oye lo que digo?"],
  "sent_today.intent": ["qué has enviado (fuera|a internet) hoy", "qué has contactado hoy", "con quién has hablado hoy", "qué servicios has usado hoy"],
  "who_hears_me.intent": ["quién oye lo que digo", "a dónde va mi (voz|habla)", "a quién envías mi (voz|habla)", "quién me escucha", "dónde se reconoce mi voz"],
@@ -76,7 +76,7 @@ T = {
  "kinds": ["el reconocimiento de voz", "la voz", "la traducción", "Wikipedia", "las descargas de modelos", "la tienda de skills", "las instalaciones de paquetes", "los paquetes de Pyodide", "GitHub", "el tiempo", "la radio y las noticias"],
 },
 "it-IT": {
- "name": "Guardiano", "description": "Dice cosa ha inviato fuori oggi l'assistente e chi sente quello che dici, dal suo registro di rete.",
+ "name": "Guardiano", "description": "La tua privacy con la voce: cosa ha inviato oggi l'assistente, chi sente quello che dici e la modalità offline, così niente di quello che dici esce dal dispositivo.",
  "examples": ["Cosa hai inviato fuori oggi?", "Chi sente quello che dico?"],
  "sent_today.intent": ["cosa hai inviato (fuori|su internet) oggi", "cosa hai contattato oggi", "con chi hai parlato oggi", "quali servizi hai usato oggi"],
  "who_hears_me.intent": ["chi sente quello che dico", "dove va la mia voce", "a chi mandi la mia voce", "chi mi ascolta", "dove viene riconosciuta la mia voce"],
@@ -92,7 +92,7 @@ T = {
  "kinds": ["il riconoscimento vocale", "la voce", "la traduzione", "Wikipedia", "i download dei modelli", "il negozio di skill", "le installazioni di pacchetti", "i pacchetti Pyodide", "GitHub", "il meteo", "radio e notizie"],
 },
 "pt-BR": {
- "name": "Guardião", "description": "Diz o que o assistente enviou para fora hoje e quem ouve o que você diz, a partir do registro de rede.",
+ "name": "Guardião", "description": "Sua privacidade por voz: o que o assistente enviou hoje, quem ouve o que você diz e o modo offline, para que nada do que você diz saia do aparelho.",
  "examples": ["O que você enviou para fora hoje?", "Quem ouve o que eu digo?"],
  "sent_today.intent": ["o que você enviou (para fora|para a internet) hoje", "o que você contatou hoje", "com quem você falou hoje", "quais serviços você usou hoje"],
  "who_hears_me.intent": ["quem ouve o que eu digo", "para onde vai a minha (voz|fala)", "para quem você manda a minha (voz|fala)", "quem está escutando", "onde a minha fala é reconhecida"],
@@ -108,7 +108,7 @@ T = {
  "kinds": ["o reconhecimento de voz", "a voz", "a tradução", "a Wikipédia", "downloads de modelos", "a loja de skills", "instalações de pacotes", "pacotes do Pyodide", "o GitHub", "o tempo", "rádio e notícias"],
 },
 "pt-PT": {
- "name": "Guardião", "description": "Diz o que o assistente enviou para fora hoje e quem ouve o que dizes, a partir do registo de rede.",
+ "name": "Guardião", "description": "A tua privacidade por voz: o que o assistente enviou hoje, quem ouve o que dizes e o modo offline, para que nada do que dizes saia do dispositivo.",
  "examples": ["O que enviaste para fora hoje?", "Quem ouve o que eu digo?"],
  "sent_today.intent": ["o que enviaste (para fora|para a internet) hoje", "o que contactaste hoje", "com quem falaste hoje", "que serviços usaste hoje"],
  "who_hears_me.intent": ["quem ouve o que eu digo", "para onde vai a minha (voz|fala)", "a quem envias a minha (voz|fala)", "quem está a ouvir", "onde é reconhecida a minha fala"],
@@ -124,7 +124,7 @@ T = {
  "kinds": ["o reconhecimento de voz", "a voz", "a tradução", "a Wikipédia", "transferências de modelos", "a loja de skills", "instalações de pacotes", "pacotes do Pyodide", "o GitHub", "o tempo", "rádio e notícias"],
 },
 "ca-ES": {
- "name": "Guardià", "description": "Diu què ha enviat fora avui l'assistent i qui sent el que dius, segons el seu registre de xarxa.",
+ "name": "Guardià", "description": "La teva privacitat amb la veu: què ha enviat avui l'assistent, qui sent el que dius i el mode desconnectat perquè res del que dius surti del dispositiu.",
  "examples": ["Què has enviat fora avui?", "Qui sent el que dic?"],
  "sent_today.intent": ["què has enviat (fora|a internet) avui", "què has contactat avui", "amb qui has parlat avui", "quins serveis has fet servir avui"],
  "who_hears_me.intent": ["qui sent el que dic", "on va la meva veu", "a qui envies la meva veu", "qui m'escolta", "on es reconeix la meva veu"],
@@ -140,7 +140,7 @@ T = {
  "kinds": ["el reconeixement de veu", "la veu", "la traducció", "la Viquipèdia", "les baixades de models", "la botiga de skills", "les instal·lacions de paquets", "els paquets de Pyodide", "GitHub", "el temps", "la ràdio i les notícies"],
 },
 "gl-ES": {
- "name": "Garda", "description": "Di que enviou fóra hoxe o asistente e quen oe o que dis, segundo o seu rexistro de rede.",
+ "name": "Garda", "description": "A túa privacidade coa voz: que enviou hoxe o asistente, quen oe o que dis e o modo sen conexión para que nada do que dis saia do dispositivo.",
  "examples": ["Que enviaches fóra hoxe?", "Quen oe o que digo?"],
  "sent_today.intent": ["que enviaches (fóra|a internet) hoxe", "que contactaches hoxe", "con quen falaches hoxe", "que servizos usaches hoxe"],
  "who_hears_me.intent": ["quen oe o que digo", "a onde vai a miña voz", "a quen lle mandas a miña voz", "quen me escoita", "onde se recoñece a miña voz"],
@@ -156,7 +156,7 @@ T = {
  "kinds": ["o recoñecemento de voz", "a voz", "a tradución", "a Wikipedia", "as descargas de modelos", "a tenda de skills", "as instalacións de paquetes", "os paquetes de Pyodide", "GitHub", "o tempo", "a radio e as noticias"],
 },
 "eu-ES": {
- "name": "Zaindaria", "description": "Laguntzaileak gaur kanpora zer bidali duen eta esaten duzuna nork entzuten duen esaten du, bere sare-erregistroaren arabera.",
+ "name": "Zaindaria", "description": "Zure pribatutasuna ahotsez: laguntzaileak gaur kanpora bidali duena, esaten duzuna nork entzuten duen, eta deskonektatzea, esaten duzun ezer gailutik atera ez dadin.",
  "examples": ["Zer bidali duzu kanpora gaur?", "Nork entzuten du esaten dudana?"],
  "sent_today.intent": ["zer bidali duzu kanpora gaur", "zer bidali duzu internetera gaur", "norekin hitz egin duzu gaur", "zein zerbitzu erabili dituzu gaur"],
  "who_hears_me.intent": ["nork entzuten du esaten dudana", "nora doa nire ahotsa", "nori bidaltzen diozu nire ahotsa", "nor dago entzuten", "non ezagutzen da nire ahotsa"],
@@ -286,7 +286,9 @@ for lang, (off, on, ask, *dialogs) in OFFLINE.items():
         (loc / f"{name}.dialog").write_text(text + "\n", encoding="utf-8")
     sj = loc / "skill.json"
     meta = json.loads(sj.read_text(encoding="utf-8"))
-    example = off[0][0].upper() + off[0][1:]
-    if example not in meta["examples"]:
-        meta["examples"].append(example)
+    question = {"es-ES": "¿{}?", "fr-FR": "{} ?"}.get(lang, "{}?")
+    for example in (off[0][0].upper() + off[0][1:],
+                    question.format(ask[0][0].upper() + ask[0][1:])):
+        if example not in meta["examples"]:
+            meta["examples"].append(example)
     sj.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

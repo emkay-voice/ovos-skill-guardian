@@ -2,11 +2,12 @@
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
   "name": "Zaindaria",
-  "description": "Laguntzaileak gaur kanpora zer bidali duen eta esaten duzuna nork entzuten duen esaten du, bere sare-erregistroaren arabera.",
+  "description": "Zure pribatutasuna ahotsez: laguntzaileak gaur kanpora bidali duena, esaten duzuna nork entzuten duen, eta deskonektatzea, esaten duzun ezer gailutik atera ez dadin.",
   "examples": [
     "Zer bidali duzu kanpora gaur?",
     "Nork entzuten du esaten dudana?",
-    "Deskonektatu"
+    "Deskonektatu",
+    "Konektatuta zaude?"
   ],
   "tags": [
     "privacy",

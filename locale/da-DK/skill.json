@@ -2,11 +2,12 @@
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
   "name": "Vogter",
-  "description": "Fortæller, hvad assistenten har sendt ud i dag, og hvem der hører, hvad du siger, ud fra dens netværkslog.",
+  "description": "Dit privatliv med stemmen: hvad assistenten har sendt ud i dag, hvem der hører, hvad du siger, og offline-tilstand, så intet af det du siger forlader enheden.",
   "examples": [
     "Hvad har du sendt ud i dag?",
     "Hvem hører hvad jeg siger?",
-    "Gå offline"
+    "Gå offline",
+    "Er du online?"
   ],
   "tags": [
     "privacy",

@@ -2,11 +2,12 @@
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
   "name": "Guardià",
-  "description": "Diu què ha enviat fora avui l'assistent i qui sent el que dius, segons el seu registre de xarxa.",
+  "description": "La teva privacitat amb la veu: què ha enviat avui l'assistent, qui sent el que dius i el mode desconnectat perquè res del que dius surti del dispositiu.",
   "examples": [
     "Què has enviat fora avui?",
     "Qui sent el que dic?",
-    "Desconnecta't"
+    "Desconnecta't",
+    "Estàs connectat?"
   ],
   "tags": [
     "privacy",

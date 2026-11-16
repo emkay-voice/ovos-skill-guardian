@@ -2,11 +2,12 @@
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
   "name": "Guardián",
-  "description": "Dice qué ha enviado fuera el asistente hoy y quién oye lo que dices, según su registro de red.",
+  "description": "Tu privacidad con la voz: qué ha enviado hoy el asistente, quién oye lo que dices y el modo sin conexión para que nada de lo que dices salga del dispositivo.",
   "examples": [
     "¿Qué has enviado fuera hoy?",
     "¿Quién oye lo que digo?",
-    "Desconéctate"
+    "Desconéctate",
+    "¿Estás conectado?"
   ],
   "tags": [
     "privacy",
