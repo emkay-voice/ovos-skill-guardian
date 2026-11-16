@@ -11,5 +11,6 @@
     "privacy",
     "network",
     "emkay"
-  ]
+  ],
+  "icon": "https://raw.githubusercontent.com/emkay-voice/ovos-skill-guardian/main/res/icon.png"
 }

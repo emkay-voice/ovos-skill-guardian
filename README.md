@@ -1,4 +1,4 @@
-# Guardian
+# <img src='res/icon.png' width='50' height='50' style='vertical-align:bottom'/> Guardian
 
 An [OpenVoiceOS](https://openvoiceos.org) skill that tells what the assistant
 sent out on the network today, and who hears what you say. Privacy as
