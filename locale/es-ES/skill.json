@@ -1,0 +1,15 @@
+{
+  "skill_id": "ovos-skill-guardian.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "name": "Guardián",
+  "description": "Dice qué ha enviado fuera el asistente hoy y quién oye lo que dices, según su registro de red.",
+  "examples": [
+    "¿Qué has enviado fuera hoy?",
+    "¿Quién oye lo que digo?"
+  ],
+  "tags": [
+    "privacy",
+    "network",
+    "emkay"
+  ]
+}

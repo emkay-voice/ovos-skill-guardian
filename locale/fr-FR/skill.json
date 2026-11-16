@@ -1,0 +1,15 @@
+{
+  "skill_id": "ovos-skill-guardian.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "name": "Gardien",
+  "description": "Dit ce que l'assistant a envoyé dehors aujourd'hui et qui entend ce que tu dis, d'après son journal réseau.",
+  "examples": [
+    "Qu'as-tu envoyé dehors aujourd'hui ?",
+    "Qui entend ce que je dis ?"
+  ],
+  "tags": [
+    "privacy",
+    "network",
+    "emkay"
+  ]
+}

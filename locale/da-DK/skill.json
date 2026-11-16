@@ -1,0 +1,15 @@
+{
+  "skill_id": "ovos-skill-guardian.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "name": "Vogter",
+  "description": "Fortæller, hvad assistenten har sendt ud i dag, og hvem der hører, hvad du siger, ud fra dens netværkslog.",
+  "examples": [
+    "Hvad har du sendt ud i dag?",
+    "Hvem hører hvad jeg siger?"
+  ],
+  "tags": [
+    "privacy",
+    "network",
+    "emkay"
+  ]
+}

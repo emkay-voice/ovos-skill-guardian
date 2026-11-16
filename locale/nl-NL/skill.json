@@ -1,0 +1,15 @@
+{
+  "skill_id": "ovos-skill-guardian.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "name": "Wachter",
+  "description": "Vertelt wat de assistent vandaag naar buiten heeft gestuurd en wie hoort wat je zegt, uit zijn netwerklogboek.",
+  "examples": [
+    "Wat heb je vandaag naar buiten gestuurd?",
+    "Wie hoort wat ik zeg?"
+  ],
+  "tags": [
+    "privacy",
+    "network",
+    "emkay"
+  ]
+}

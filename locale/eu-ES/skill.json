@@ -1,0 +1,15 @@
+{
+  "skill_id": "ovos-skill-guardian.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "name": "Zaindaria",
+  "description": "Laguntzaileak gaur kanpora zer bidali duen eta esaten duzuna nork entzuten duen esaten du, bere sare-erregistroaren arabera.",
+  "examples": [
+    "Zer bidali duzu kanpora gaur?",
+    "Nork entzuten du esaten dudana?"
+  ],
+  "tags": [
+    "privacy",
+    "network",
+    "emkay"
+  ]
+}

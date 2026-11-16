@@ -1,0 +1,12 @@
+{
+  "skillMetadata": {
+    "sections": [
+      {
+        "name": "Network log",
+        "fields": [
+          {"name": "log_path", "type": "text", "label": "Where the network log is", "value": "~/.local/state/emkay/network.jsonl"}
+        ]
+      }
+    ]
+  }
+}

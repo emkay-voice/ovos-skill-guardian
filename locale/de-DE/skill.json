@@ -1,0 +1,15 @@
+{
+  "skill_id": "ovos-skill-guardian.emkay-voice",
+  "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "name": "Wächter",
+  "description": "Sagt, was der Assistent heute nach draußen geschickt hat und wer hört, was du sagst, aus seinem Netzwerkprotokoll.",
+  "examples": [
+    "Was hast du heute nach draußen geschickt?",
+    "Wer hört, was ich sage?"
+  ],
+  "tags": [
+    "privacy",
+    "network",
+    "emkay"
+  ]
+}
