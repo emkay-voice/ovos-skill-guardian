@@ -7,7 +7,7 @@ you say leaves it, and back online. Privacy as something you can ask about
 and switch, not just a setting.
 
 It is made for [Emkay](https://github.com/emkay-voice/emkay), OpenVoiceOS in
-the browser, which keeps a log of everything it contacts (⚙ → Network in
+the browser, which keeps a log of everything it contacts (⚙ → Guardian in
 its menu) and can run local only. The skill reads that log, and asks the
 device's PHAL plugin to switch; other devices can answer the same messages.
 
