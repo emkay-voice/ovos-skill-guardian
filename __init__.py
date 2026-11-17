@@ -128,8 +128,9 @@ class GuardianSkill(OVOSSkill):
         entries = read_log(self.log_path, start_of_today())
         if entries is None:
             return self.speak_dialog("no_log")
-        # the site's own files (the assistant itself) are not "sent out"
-        out = [e for e in entries if e.get("kind") != "self"]
+        # the site's own files (the assistant itself) are not "sent out", nor
+        # are requests refused in local only ("blocked": they never left)
+        out = [e for e in entries if e.get("kind") != "self" and not e.get("blocked")]
         if not out:
             return self.speak_dialog("sent_nothing")
         counts = Counter(self.service_name(e) for e in out)
@@ -152,7 +153,8 @@ class GuardianSkill(OVOSSkill):
         if module in BROWSER_STT:
             return self.speak_dialog("stt_browser")
         entries = read_log(self.log_path, start_of_today()) or []
-        hosts = sorted({e.get("host", "") for e in entries if e.get("kind") == "stt"} - {""})
+        hosts = sorted({e.get("host", "") for e in entries
+                        if e.get("kind") == "stt" and not e.get("blocked")} - {""})
         if hosts:
             return self.speak_dialog("stt_remote_seen", {"module": module, "hosts": self.join(hosts)})
         self.speak_dialog("stt_remote", {"module": module or "?"})

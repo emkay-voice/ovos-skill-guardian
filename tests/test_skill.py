@@ -135,3 +135,12 @@ def test_no_phal(skill, monkeypatch):
     monkeypatch.setattr(pkg, "ANSWER_TIMEOUT", 0.2)
     skill.handle_go_offline(Message("x"))
     assert last(skill) == "no_local_only"
+
+
+def test_blocked_requests_were_not_sent(skill):
+    """Requests refused in local only ("blocked") never left: not counted."""
+    blocked = entry("wikipedia", "da.wikipedia.org", "ovos-skill-wikipedia", service="Wikipedia")
+    blocked["blocked"], blocked["status"] = True, 0
+    write(skill, [blocked])
+    skill.handle_sent_today(Message("x"))
+    assert skill.spoken[-1].data["meta"]["dialog"] == "sent_nothing"
