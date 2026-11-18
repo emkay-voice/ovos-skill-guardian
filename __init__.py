@@ -13,6 +13,12 @@ and answers:
   first, with how many times
 - "who hears what I say?": where speech recognition happens, from the STT
   plugin in the configuration and the log
+- "what just happened?": the last thing you said, which skill took it (and
+  with which intent), what it answered, and what went out meanwhile – a
+  spoken version of what ovos-tui-client and Emkay's What's happening? show.
+  It follows the bus, which every OVOS has: recognizer_loop:utterance, the
+  ovos.intent.matched notification and who spoke (speak's skill_id); the
+  network part needs the log
 - "go offline", "go online", "are you online?": "local only", where nothing
   leaves the device. The device does it and answers on the bus:
 
@@ -26,8 +32,10 @@ and answers:
   downloads, a shield on the screen); on other hardware another PHAL plugin
   can do the same. Without an answer the skill says this device can't.
 
-Without a log (an OVOS device that writes none) it says so, and answers from
-the configuration alone. Settings:
+On an ordinary OVOS device, ovos-network-log writes the same log (and sends
+each entry on the bus as ovos.network.request, which this skill hears too –
+across Docker containers, where the file is not shared). Without a log it
+says so, and answers from the configuration alone. Settings:
 
     log_path   where the log is (default ~/.local/state/emkay/network.jsonl)
 """
@@ -83,7 +91,82 @@ def start_of_today() -> float:
 ANSWER_TIMEOUT = 5
 
 
+#: the turn before "what just happened?" is forgotten after this long (s)
+TURN_MEMORY = 30 * 60
+
+
+def skill_words(skill_id: str) -> str:
+    """A skill id said aloud: ovos-skill-date-time.openvoiceos -> date time."""
+    name = (skill_id or "").split(".")[0]
+    for prefix in ("ovos-skill-", "skill-ovos-", "skill-", "ovos-"):
+        if name.startswith(prefix):
+            name = name[len(prefix):]
+            break
+    return name.replace("-", " ").replace("_", " ").strip()
+
+
+def intent_words(intent: str) -> str:
+    """An intent name said aloud: what_time_is_it.intent -> what time is it."""
+    name = (intent or "").split(":")[-1]
+    for suffix in (".intent", ".voc"):
+        if name.endswith(suffix):
+            name = name[:-len(suffix)]
+    return name.replace("_", " ").replace("-", " ").strip()
+
+
 class GuardianSkill(OVOSSkill):
+
+    def initialize(self):
+        # what just happened: per session, the turn going on and the one before
+        self.turns = {}
+        self.add_event("recognizer_loop:utterance", self._on_utterance, speak_errors=False)
+        self.add_event("ovos.intent.matched", self._on_matched, speak_errors=False)
+        self.add_event("speak", self._on_speak, speak_errors=False)
+        # the network log as it happens, from ovos-network-log in any OVOS
+        # process or container (the file may be in another container)
+        self.heard = []
+        self.add_event("ovos.network.request", self._on_request, speak_errors=False)
+
+    def _on_request(self, message):
+        self.heard.append(dict(message.data))
+        cutoff = (time.time() - 86400 * 2) * 1000
+        if len(self.heard) > 5000 or (self.heard and self.heard[0].get("t", 0) < cutoff):
+            self.heard = [e for e in self.heard[-5000:] if e.get("t", 0) >= cutoff]
+
+    def network_log(self, since: float = 0):
+        """The network log since `since`: the file, and what was heard on the
+        bus (ovos-network-log), each request once; None when there is neither."""
+        entries = read_log(self.log_path, since)
+        if entries is None and not self.heard:
+            return None
+        seen = {(e.get("t"), e.get("host"), e.get("method")) for e in entries or []}
+        more = [e for e in self.heard if e.get("t", 0) >= since * 1000
+                and (e.get("t"), e.get("host"), e.get("method")) not in seen]
+        return sorted((entries or []) + more, key=lambda e: e.get("t", 0))
+
+    @staticmethod
+    def _session(message) -> str:
+        return ((message.context or {}).get("session") or {}).get("session_id", "default")
+
+    def _on_utterance(self, message):
+        utt = (message.data.get("utterances") or [""])[0]
+        s = self.turns.setdefault(self._session(message), {})
+        if s.get("now"):
+            s["before"] = s["now"]
+        s["now"] = {"said": utt, "t": time.time(), "skill": "", "intent": "", "answers": []}
+
+    def _on_matched(self, message):
+        now = self.turns.get(self._session(message), {}).get("now")
+        if now is not None:
+            now["skill"] = message.data.get("skill_id") or now["skill"]
+            now["intent"] = message.data.get("intent_name") or message.data.get("intent_type") or ""
+
+    def _on_speak(self, message):
+        now = self.turns.get(self._session(message), {}).get("now")
+        if now is not None:
+            now["answers"].append(message.data.get("utterance", ""))
+            if not now["skill"]:
+                now["skill"] = (message.context or {}).get("skill_id", "")
 
     @classproperty
     def runtime_requirements(self):
@@ -125,7 +208,7 @@ class GuardianSkill(OVOSSkill):
 
     @intent_handler("sent_today.intent")
     def handle_sent_today(self, message: Message):
-        entries = read_log(self.log_path, start_of_today())
+        entries = self.network_log(start_of_today())
         if entries is None:
             return self.speak_dialog("no_log")
         # the site's own files (the assistant itself) are not "sent out", nor
@@ -152,12 +235,51 @@ class GuardianSkill(OVOSSkill):
             return self.speak_dialog("stt_local", {"module": module})
         if module in BROWSER_STT:
             return self.speak_dialog("stt_browser")
-        entries = read_log(self.log_path, start_of_today()) or []
+        entries = self.network_log(start_of_today()) or []
         hosts = sorted({e.get("host", "") for e in entries
                         if e.get("kind") == "stt" and not e.get("blocked")} - {""})
         if hosts:
             return self.speak_dialog("stt_remote_seen", {"module": module, "hosts": self.join(hosts)})
         self.speak_dialog("stt_remote", {"module": module or "?"})
+
+    # -- what just happened -------------------------------------------------
+
+    def last_turn(self, message):
+        """The turn before this question (this one is the question itself)."""
+        s = self.turns.get(self._session(message), {})
+        turn = s.get("before")
+        if not turn or time.time() - turn["t"] > TURN_MEMORY:
+            return None
+        return turn
+
+    @intent_handler("what_happened.intent")
+    def handle_what_happened(self, message: Message):
+        turn = self.last_turn(message)
+        if not turn:
+            return self.speak_dialog("happened_nothing")
+        parts = [self.dialog_renderer.render("happened_heard", {"said": turn["said"]})]
+        if turn["skill"] and turn["skill"] != self.skill_id:
+            data = {"skill": skill_words(turn["skill"]), "intent": intent_words(turn["intent"])}
+            parts.append(self.dialog_renderer.render("happened_skill_intent" if data["intent"] else "happened_skill", data))
+        else:
+            parts.append(self.dialog_renderer.render("happened_nobody"))
+        if turn["answers"]:
+            answer = turn["answers"][0].strip()
+            if answer and answer[-1] not in ".!?…\"”»":
+                answer += "."
+            parts.append(self.dialog_renderer.render("happened_answered", {"answer": answer}))
+        # what went out meanwhile: the network log between that turn and this question
+        entries = self.network_log(turn["t"] - 1)
+        if entries is not None:
+            until = (self.turns.get(self._session(message), {}).get("now") or {}).get("t", time.time())
+            out = [e for e in entries if e.get("kind") != "self" and not e.get("blocked")
+                   and e.get("t", 0) / 1000 <= until]
+            services = sorted({self.service_name(e) for e in out})
+            parts.append(self.dialog_renderer.render("happened_sent", {"list": self.join(services)})
+                         if services else self.dialog_renderer.render("happened_sent_nothing"))
+        text = " ".join(p.strip() for p in parts if p.strip())
+        self.speak(text)
+        self.show(text)
 
     # -- local only ----------------------------------------------------------
 
