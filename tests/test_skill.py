@@ -202,3 +202,14 @@ def test_skill_and_intent_words():
     assert pkg.skill_words("ovos-skill-date-time.openvoiceos") == "date time"
     assert pkg.skill_words("skill-ovos-randomness.openvoiceos") == "randomness"
     assert pkg.intent_words("ovos-skill-x.y:what_time_is_it.intent") == "what time is it"
+
+
+def test_the_log_heard_on_the_bus_counts_too(skill):
+    """ovos-network-log in another container: the entries come on the bus, not in the file."""
+    e = entry("wikipedia", "en.wikipedia.org", "ovos-skill-wikipedia", ago=10)
+    skill.bus.emit(Message("ovos.network.request", e))
+    skill.handle_sent_today(Message("x"))
+    assert "Wikipedia" in said(skill)
+    write(skill, [e])                      # the same request in the file too: counted once
+    skill.handle_sent_today(Message("x"))
+    assert "once" in said(skill) or " 1 " in said(skill)

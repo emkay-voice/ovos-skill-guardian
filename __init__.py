@@ -32,8 +32,10 @@ and answers:
   downloads, a shield on the screen); on other hardware another PHAL plugin
   can do the same. Without an answer the skill says this device can't.
 
-Without a log (an OVOS device that writes none) it says so, and answers from
-the configuration alone. Settings:
+On an ordinary OVOS device, ovos-network-log writes the same log (and sends
+each entry on the bus as ovos.network.request, which this skill hears too –
+across Docker containers, where the file is not shared). Without a log it
+says so, and answers from the configuration alone. Settings:
 
     log_path   where the log is (default ~/.local/state/emkay/network.jsonl)
 """
@@ -120,6 +122,27 @@ class GuardianSkill(OVOSSkill):
         self.add_event("recognizer_loop:utterance", self._on_utterance, speak_errors=False)
         self.add_event("ovos.intent.matched", self._on_matched, speak_errors=False)
         self.add_event("speak", self._on_speak, speak_errors=False)
+        # the network log as it happens, from ovos-network-log in any OVOS
+        # process or container (the file may be in another container)
+        self.heard = []
+        self.add_event("ovos.network.request", self._on_request, speak_errors=False)
+
+    def _on_request(self, message):
+        self.heard.append(dict(message.data))
+        cutoff = (time.time() - 86400 * 2) * 1000
+        if len(self.heard) > 5000 or (self.heard and self.heard[0].get("t", 0) < cutoff):
+            self.heard = [e for e in self.heard[-5000:] if e.get("t", 0) >= cutoff]
+
+    def network_log(self, since: float = 0):
+        """The network log since `since`: the file, and what was heard on the
+        bus (ovos-network-log), each request once; None when there is neither."""
+        entries = read_log(self.log_path, since)
+        if entries is None and not self.heard:
+            return None
+        seen = {(e.get("t"), e.get("host"), e.get("method")) for e in entries or []}
+        more = [e for e in self.heard if e.get("t", 0) >= since * 1000
+                and (e.get("t"), e.get("host"), e.get("method")) not in seen]
+        return sorted((entries or []) + more, key=lambda e: e.get("t", 0))
 
     @staticmethod
     def _session(message) -> str:
@@ -185,7 +208,7 @@ class GuardianSkill(OVOSSkill):
 
     @intent_handler("sent_today.intent")
     def handle_sent_today(self, message: Message):
-        entries = read_log(self.log_path, start_of_today())
+        entries = self.network_log(start_of_today())
         if entries is None:
             return self.speak_dialog("no_log")
         # the site's own files (the assistant itself) are not "sent out", nor
@@ -212,7 +235,7 @@ class GuardianSkill(OVOSSkill):
             return self.speak_dialog("stt_local", {"module": module})
         if module in BROWSER_STT:
             return self.speak_dialog("stt_browser")
-        entries = read_log(self.log_path, start_of_today()) or []
+        entries = self.network_log(start_of_today()) or []
         hosts = sorted({e.get("host", "") for e in entries
                         if e.get("kind") == "stt" and not e.get("blocked")} - {""})
         if hosts:
@@ -241,9 +264,12 @@ class GuardianSkill(OVOSSkill):
         else:
             parts.append(self.dialog_renderer.render("happened_nobody"))
         if turn["answers"]:
-            parts.append(self.dialog_renderer.render("happened_answered", {"answer": turn["answers"][0]}))
+            answer = turn["answers"][0].strip()
+            if answer and answer[-1] not in ".!?…\"”»":
+                answer += "."
+            parts.append(self.dialog_renderer.render("happened_answered", {"answer": answer}))
         # what went out meanwhile: the network log between that turn and this question
-        entries = read_log(self.log_path, turn["t"] - 1)
+        entries = self.network_log(turn["t"] - 1)
         if entries is not None:
             until = (self.turns.get(self._session(message), {}).get("now") or {}).get("t", time.time())
             out = [e for e in entries if e.get("kind") != "self" and not e.get("blocked")
