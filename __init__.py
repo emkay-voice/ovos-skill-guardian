@@ -13,6 +13,12 @@ and answers:
   first, with how many times
 - "who hears what I say?": where speech recognition happens, from the STT
   plugin in the configuration and the log
+- "what just happened?": the last thing you said, which skill took it (and
+  with which intent), what it answered, and what went out meanwhile – a
+  spoken version of what ovos-tui-client and Emkay's What's happening? show.
+  It follows the bus, which every OVOS has: recognizer_loop:utterance, the
+  ovos.intent.matched notification and who spoke (speak's skill_id); the
+  network part needs the log
 - "go offline", "go online", "are you online?": "local only", where nothing
   leaves the device. The device does it and answers on the bus:
 
@@ -83,7 +89,61 @@ def start_of_today() -> float:
 ANSWER_TIMEOUT = 5
 
 
+#: the turn before "what just happened?" is forgotten after this long (s)
+TURN_MEMORY = 30 * 60
+
+
+def skill_words(skill_id: str) -> str:
+    """A skill id said aloud: ovos-skill-date-time.openvoiceos -> date time."""
+    name = (skill_id or "").split(".")[0]
+    for prefix in ("ovos-skill-", "skill-ovos-", "skill-", "ovos-"):
+        if name.startswith(prefix):
+            name = name[len(prefix):]
+            break
+    return name.replace("-", " ").replace("_", " ").strip()
+
+
+def intent_words(intent: str) -> str:
+    """An intent name said aloud: what_time_is_it.intent -> what time is it."""
+    name = (intent or "").split(":")[-1]
+    for suffix in (".intent", ".voc"):
+        if name.endswith(suffix):
+            name = name[:-len(suffix)]
+    return name.replace("_", " ").replace("-", " ").strip()
+
+
 class GuardianSkill(OVOSSkill):
+
+    def initialize(self):
+        # what just happened: per session, the turn going on and the one before
+        self.turns = {}
+        self.add_event("recognizer_loop:utterance", self._on_utterance, speak_errors=False)
+        self.add_event("ovos.intent.matched", self._on_matched, speak_errors=False)
+        self.add_event("speak", self._on_speak, speak_errors=False)
+
+    @staticmethod
+    def _session(message) -> str:
+        return ((message.context or {}).get("session") or {}).get("session_id", "default")
+
+    def _on_utterance(self, message):
+        utt = (message.data.get("utterances") or [""])[0]
+        s = self.turns.setdefault(self._session(message), {})
+        if s.get("now"):
+            s["before"] = s["now"]
+        s["now"] = {"said": utt, "t": time.time(), "skill": "", "intent": "", "answers": []}
+
+    def _on_matched(self, message):
+        now = self.turns.get(self._session(message), {}).get("now")
+        if now is not None:
+            now["skill"] = message.data.get("skill_id") or now["skill"]
+            now["intent"] = message.data.get("intent_name") or message.data.get("intent_type") or ""
+
+    def _on_speak(self, message):
+        now = self.turns.get(self._session(message), {}).get("now")
+        if now is not None:
+            now["answers"].append(message.data.get("utterance", ""))
+            if not now["skill"]:
+                now["skill"] = (message.context or {}).get("skill_id", "")
 
     @classproperty
     def runtime_requirements(self):
@@ -158,6 +218,42 @@ class GuardianSkill(OVOSSkill):
         if hosts:
             return self.speak_dialog("stt_remote_seen", {"module": module, "hosts": self.join(hosts)})
         self.speak_dialog("stt_remote", {"module": module or "?"})
+
+    # -- what just happened -------------------------------------------------
+
+    def last_turn(self, message):
+        """The turn before this question (this one is the question itself)."""
+        s = self.turns.get(self._session(message), {})
+        turn = s.get("before")
+        if not turn or time.time() - turn["t"] > TURN_MEMORY:
+            return None
+        return turn
+
+    @intent_handler("what_happened.intent")
+    def handle_what_happened(self, message: Message):
+        turn = self.last_turn(message)
+        if not turn:
+            return self.speak_dialog("happened_nothing")
+        parts = [self.dialog_renderer.render("happened_heard", {"said": turn["said"]})]
+        if turn["skill"] and turn["skill"] != self.skill_id:
+            data = {"skill": skill_words(turn["skill"]), "intent": intent_words(turn["intent"])}
+            parts.append(self.dialog_renderer.render("happened_skill_intent" if data["intent"] else "happened_skill", data))
+        else:
+            parts.append(self.dialog_renderer.render("happened_nobody"))
+        if turn["answers"]:
+            parts.append(self.dialog_renderer.render("happened_answered", {"answer": turn["answers"][0]}))
+        # what went out meanwhile: the network log between that turn and this question
+        entries = read_log(self.log_path, turn["t"] - 1)
+        if entries is not None:
+            until = (self.turns.get(self._session(message), {}).get("now") or {}).get("t", time.time())
+            out = [e for e in entries if e.get("kind") != "self" and not e.get("blocked")
+                   and e.get("t", 0) / 1000 <= until]
+            services = sorted({self.service_name(e) for e in out})
+            parts.append(self.dialog_renderer.render("happened_sent", {"list": self.join(services)})
+                         if services else self.dialog_renderer.render("happened_sent_nothing"))
+        text = " ".join(p.strip() for p in parts if p.strip())
+        self.speak(text)
+        self.show(text)
 
     # -- local only ----------------------------------------------------------
 
