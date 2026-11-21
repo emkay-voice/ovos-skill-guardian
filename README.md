@@ -84,6 +84,29 @@ network layer refuses everything but Emkay's own site and the model and voice
 downloads, and a small shield on the screen says it is offline. Where no PHAL
 answers, the skill says this device can't switch.
 
+## In the control panel
+
+With [ovos-control-panel](https://github.com/OpenVoiceOS/ovos-control-panel) on the device, the skill brings
+its own page, **Privacy**, with the everyday pages. It shows:
+
+- who hears you and who speaks: the plugin, whether it works on the device, in the browser or on a server, and
+  the servers speech went to today;
+- local only, with a button to switch it on and off, when the device can;
+- what went out today, yesterday or in the last 7 days: service by service, with how many times, who asked and
+  when, and every request, which you can narrow down to one skill. Requests refused in local only are shown as
+  refused.
+
+It is in all of the skill's languages.
+
+### The messages behind it
+
+| Message | Data | Answer (`<message>.response`) |
+|---|---|---|
+| `ovos.guardian.network` | `since`, `until` (seconds since 1970; today by default), `limit` | `has_log`, `services` (kind, service, count, blocked, hosts, who, last), `entries` (newest first), `total` |
+| `ovos.guardian.status` | | `stt` and `tts` (module, where: device/browser/server, hosts today), `local_only` (`{"enabled"}`, or `null` when the device cannot), `has_log` |
+
+The page switches local only with `ovos.local_only` itself, as "go offline" does.
+
 ## Settings
 
 | setting | default |

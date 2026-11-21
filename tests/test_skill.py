@@ -213,3 +213,52 @@ def test_the_log_heard_on_the_bus_counts_too(skill):
     write(skill, [e])                      # the same request in the file too: counted once
     skill.handle_sent_today(Message("x"))
     assert "once" in said(skill) or " 1 " in said(skill)
+
+
+# -- the control panel's messages ---------------------------------------------
+
+def answer(skill, msg_type, **data):
+    got = []
+    skill.bus.on(f"{msg_type}.response", lambda m: got.append(Message.deserialize(m) if isinstance(m, str) else m))
+    skill.bus.emit(Message(msg_type, data))
+    return got[-1].data
+
+
+def test_the_network_as_data(skill):
+    write(skill, [entry("wikipedia", "da.wikipedia.org", "ovos-skill-wikipedia", ago=120)] * 2
+          + [dict(entry("stt", "stt.openvoiceos.org", "ovos-stt-plugin-server", ago=60), blocked=True)]
+          + [entry("self", "app.emkay.ai", "emkay")]
+          + [entry("radio", "radio.example", "ovos-skill-radio", ago=3 * 86400)])
+    data = answer(skill, pkg.GUARDIAN_NETWORK)
+    assert data["has_log"] and data["total"] == 3
+    wiki, stt = data["services"]
+    assert (wiki["service"], wiki["count"], wiki["hosts"], wiki["who"]) == \
+        ("da.wikipedia.org", 2, ["da.wikipedia.org"], ["ovos-skill-wikipedia"])
+    assert (stt["kind"], stt["count"], stt["blocked"]) == ("stt", 0, 1)
+    assert [e["kind"] for e in data["entries"]] == ["stt", "wikipedia", "wikipedia"], "newest first, no self"
+    week = answer(skill, pkg.GUARDIAN_NETWORK, since=time.time() - 7 * 86400)
+    assert {s["kind"] for s in week["services"]} == {"wikipedia", "stt", "radio"}
+
+
+def test_the_network_without_a_log(skill):
+    data = answer(skill, pkg.GUARDIAN_NETWORK)
+    assert data["has_log"] is False and data["services"] == [] and data["entries"] == []
+
+
+def test_the_status_says_who_hears_and_speaks(skill, monkeypatch):
+    monkeypatch.setattr(pkg, "ANSWER_TIMEOUT", 0.2)
+    skill.config_core["stt"] = {"module": "ovos-stt-plugin-vosk"}
+    skill.config_core["tts"] = {"module": "ovos-tts-plugin-server"}
+    write(skill, [entry("tts", "tts.example.org", "ovos-tts-plugin-server")])
+    data = answer(skill, pkg.GUARDIAN_STATUS)
+    assert data["stt"] == {"module": "ovos-stt-plugin-vosk", "where": "device", "hosts": []}
+    assert data["tts"] == {"module": "ovos-tts-plugin-server", "where": "server", "hosts": ["tts.example.org"]}
+    assert data["local_only"] is None, "no PHAL plugin: this device cannot go local only"
+    phal(skill, True)
+    assert answer(skill, pkg.GUARDIAN_STATUS)["local_only"] == {"enabled": True}
+
+
+def test_where_speech_works():
+    assert pkg.where("ovos-stt-plugin-browser", pkg.LOCAL_STT, pkg.BROWSER_STT) == "browser"
+    assert pkg.where("ovos-tts-plugin-piper", pkg.LOCAL_TTS, pkg.BROWSER_TTS) == "device"
+    assert pkg.where("", pkg.LOCAL_TTS, pkg.BROWSER_TTS) == ""
