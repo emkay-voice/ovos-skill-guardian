@@ -32,6 +32,12 @@ and answers:
   downloads, a shield on the screen); on other hardware another PHAL plugin
   can do the same. Without an answer the skill says this device can't.
 
+For a control-panel page (panel/), the same as data on the bus:
+
+    ovos.guardian.network  {"since": s, "until": s, "limit": n}
+    ovos.guardian.status   {}
+    -> <type>.response     (see handle_network and handle_status)
+
 On an ordinary OVOS device, ovos-network-log writes the same log (and sends
 each entry on the bus as ovos.network.request, which this skill hears too –
 across Docker containers, where the file is not shared). Without a log it
@@ -62,6 +68,52 @@ LOCAL_STT = ("ovos-stt-plugin-whisper-browser", "ovos-stt-plugin-fasterwhisper",
              "ovos-stt-plugin-citrinet", "ovos-stt-plugin-wav2vec", "ovos-stt-plugin-chromium-local")
 #: the browser's own speech recognition (Web Speech API)
 BROWSER_STT = ("ovos-stt-plugin-browser",)
+#: voices made on the device
+LOCAL_TTS = ("ovos-tts-plugin-piper", "ovos-tts-plugin-piper-browser", "ovos-tts-plugin-mimic",
+             "ovos-tts-plugin-espeakng", "ovos-tts-plugin-espeak", "ovos-tts-plugin-pico",
+             "ovos-tts-plugin-sam", "ovos-tts-plugin-beepspeak", "ovos-tts-plugin-dummy",
+             "ovos-tts-plugin-kokoro", "ovos-tts-plugin-matxa-multispeaker-cat")
+#: the browser's own voices (Web Speech API)
+BROWSER_TTS = ("ovos-tts-plugin-browser",)
+
+#: the messages behind the control panel's page
+GUARDIAN_NETWORK = "ovos.guardian.network"
+GUARDIAN_STATUS = "ovos.guardian.status"
+#: the most requests one answer lists (the summary counts them all)
+MAX_ENTRIES = 1000
+
+
+def where(module: str, local: tuple, browser: tuple) -> str:
+    """Where a speech plugin does its work: "device", "browser" or "server"
+    ("" when none is set)."""
+    if not module:
+        return ""
+    if module in local:
+        return "device"
+    if module in browser:
+        return "browser"
+    return "server"
+
+
+def summarize(entries: list) -> list:
+    """The services in `entries`, most used first: kind, service, how many
+    times, the hosts, when last, and how many were refused (local only)."""
+    out = {}
+    for e in entries:
+        key = (e.get("kind") or "", e.get("service") or e.get("host") or "?")
+        s = out.setdefault(key, {"kind": key[0], "service": key[1], "count": 0, "blocked": 0,
+                                 "hosts": set(), "who": set(), "last": 0})
+        if e.get("blocked"):
+            s["blocked"] += 1
+        else:
+            s["count"] += 1
+        if e.get("host"):
+            s["hosts"].add(e["host"])
+        if e.get("who"):
+            s["who"].add(e["who"])
+        s["last"] = max(s["last"], e.get("t", 0))
+    rows = [dict(s, hosts=sorted(s["hosts"]), who=sorted(s["who"])) for s in out.values()]
+    return sorted(rows, key=lambda r: (-r["count"], -r["blocked"], r["service"]))
 
 
 def read_log(path: str, since: float = 0) -> list:
@@ -126,6 +178,9 @@ class GuardianSkill(OVOSSkill):
         # process or container (the file may be in another container)
         self.heard = []
         self.add_event("ovos.network.request", self._on_request, speak_errors=False)
+        # the control panel's page
+        self.add_event(GUARDIAN_NETWORK, self.handle_network, speak_errors=False)
+        self.add_event(GUARDIAN_STATUS, self.handle_status, speak_errors=False)
 
     def _on_request(self, message):
         self.heard.append(dict(message.data))
@@ -303,6 +358,45 @@ class GuardianSkill(OVOSSkill):
         if state is None:
             return self.speak_dialog("no_local_only")
         self.speak_dialog("offline_off")
+
+    # -- the same, as data, for the control panel's page --------------------
+
+    def handle_network(self, message: Message):
+        """What went out between `since` and `until` (seconds since 1970;
+        the start of today and now by default): the services, and the
+        requests themselves, newest first. The assistant's own files ("self")
+        are left out, as when it is asked aloud."""
+        since = float(message.data.get("since") or start_of_today())
+        until = float(message.data.get("until") or time.time() + 60)
+        limit = max(1, min(int(message.data.get("limit") or MAX_ENTRIES), MAX_ENTRIES))
+        entries = self.network_log(since)
+        data = {"has_log": entries is not None, "log_path": self.log_path,
+                "since": since, "until": until, "services": [], "entries": [], "total": 0}
+        if entries is not None:
+            entries = [e for e in entries if e.get("kind") != "self" and e.get("t", 0) / 1000 <= until]
+            data["services"] = summarize(entries)
+            data["total"] = len(entries)
+            keep = ("t", "host", "method", "status", "bytes", "who", "kind", "service", "blocked")
+            data["entries"] = [{k: e[k] for k in keep if k in e} for e in reversed(entries[-limit:])]
+        self.bus.emit(message.response(data))
+
+    def handle_status(self, message: Message):
+        """Who hears and who speaks (the plugin, and where it works), the
+        servers speech went to today, and local only: its state, or None
+        when this device cannot go local only."""
+        stt = (self.config_core.get("stt") or {}).get("module", "")
+        tts = (self.config_core.get("tts") or {}).get("module", "")
+        today = self.network_log(start_of_today()) or []
+        seen = {kind: sorted({e.get("host", "") for e in today
+                              if e.get("kind") == kind and not e.get("blocked")} - {""})
+                for kind in ("stt", "tts")}
+        state = self.local_only("status")
+        self.bus.emit(message.response({
+            "stt": {"module": stt, "where": where(stt, LOCAL_STT, BROWSER_STT), "hosts": seen["stt"]},
+            "tts": {"module": tts, "where": where(tts, LOCAL_TTS, BROWSER_TTS), "hosts": seen["tts"]},
+            "local_only": None if state is None else {"enabled": bool(state.get("enabled"))},
+            "has_log": self.network_log(start_of_today()) is not None,
+        }))
 
     @intent_handler("are_you_online.intent")
     def handle_are_you_online(self, message: Message):
