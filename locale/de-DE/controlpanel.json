@@ -33,5 +33,7 @@
  "guardian.net.services": "Dienste",
  "guardian.net.svcMeta": "{count} Mal, zuletzt {last_s:time}. Gefragt von {who}.",
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
- "guardian.net.refusedTitle": "Abgewiesen, weil das Gerät nur lokal lief"
+ "guardian.net.refusedTitle": "Abgewiesen, weil das Gerät nur lokal lief",
+ "guardian.net.filter": "Anfragen zeigen von",
+ "guardian.net.everyone": "allen"
 }

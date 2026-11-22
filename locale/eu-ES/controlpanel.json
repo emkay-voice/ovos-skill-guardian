@@ -33,5 +33,7 @@
  "guardian.net.services": "Zerbitzuak",
  "guardian.net.svcMeta": "{count} aldiz, azkena {last_s:time}. Eskatzailea: {who}.",
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
- "guardian.net.refusedTitle": "Ukatuak, gailua lokalean soilik zegoelako"
+ "guardian.net.refusedTitle": "Ukatuak, gailua lokalean soilik zegoelako",
+ "guardian.net.filter": "Erakutsi hauen eskaerak",
+ "guardian.net.everyone": "guztiak"
 }

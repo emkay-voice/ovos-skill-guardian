@@ -95,7 +95,7 @@ It shows:
   the servers speech went to today;
 - local only, with a button to switch it on and off, when the device can;
 - what went out today, yesterday or in the last 7 days: service by service, with how many times, who asked and
-  when, and the newest 200 requests. Requests refused in local only are listed by themselves.
+  when, and the newest 200 requests, which you can narrow down to one skill. Requests refused in local only are listed by themselves.
 
 It is in all of the skill's languages.
 

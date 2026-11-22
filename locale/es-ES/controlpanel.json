@@ -33,5 +33,7 @@
  "guardian.net.services": "Servicios",
  "guardian.net.svcMeta": "{count} veces, la última {last_s:time}. Pedido por {who}.",
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
- "guardian.net.refusedTitle": "Rechazadas, porque el dispositivo estaba solo en local"
+ "guardian.net.refusedTitle": "Rechazadas, porque el dispositivo estaba solo en local",
+ "guardian.net.filter": "Mostrar las peticiones de",
+ "guardian.net.everyone": "todos"
 }

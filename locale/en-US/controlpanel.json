@@ -33,5 +33,7 @@
  "guardian.net.services": "Services",
  "guardian.net.svcMeta": "{count} times, last {last_s:time}. Asked by {who}.",
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
- "guardian.net.refusedTitle": "Refused, because the device was local only"
+ "guardian.net.refusedTitle": "Refused, because the device was local only",
+ "guardian.net.filter": "Show the requests of",
+ "guardian.net.everyone": "everyone"
 }

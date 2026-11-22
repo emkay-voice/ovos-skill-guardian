@@ -33,5 +33,7 @@
  "guardian.net.services": "Serveis",
  "guardian.net.svcMeta": "{count} vegades, l'última {last_s:time}. Demanat per {who}.",
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
- "guardian.net.refusedTitle": "Rebutjades, perquè el dispositiu estava només en local"
+ "guardian.net.refusedTitle": "Rebutjades, perquè el dispositiu estava només en local",
+ "guardian.net.filter": "Mostra les peticions de",
+ "guardian.net.everyone": "tothom"
 }

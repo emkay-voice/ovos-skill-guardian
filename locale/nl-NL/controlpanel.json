@@ -33,5 +33,7 @@
  "guardian.net.services": "Diensten",
  "guardian.net.svcMeta": "{count} keer, laatst {last_s:time}. Gevraagd door {who}.",
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
- "guardian.net.refusedTitle": "Geweigerd, omdat het apparaat alleen lokaal was"
+ "guardian.net.refusedTitle": "Geweigerd, omdat het apparaat alleen lokaal was",
+ "guardian.net.filter": "Toon de verzoeken van",
+ "guardian.net.everyone": "iedereen"
 }

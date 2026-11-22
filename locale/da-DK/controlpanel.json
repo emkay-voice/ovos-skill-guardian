@@ -33,5 +33,7 @@
  "guardian.net.services": "Tjenester",
  "guardian.net.svcMeta": "{count} gange, senest {last_s:time}. Spurgt af {who}.",
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
- "guardian.net.refusedTitle": "Afvist, fordi enheden kørte kun lokalt"
+ "guardian.net.refusedTitle": "Afvist, fordi enheden kørte kun lokalt",
+ "guardian.net.filter": "Vis forespørgsler fra",
+ "guardian.net.everyone": "alle"
 }
