@@ -40,7 +40,8 @@ def test_the_page_speaks_every_language_the_skill_does():
         assert "{refused}" in table["guardian.net.sumRefused"], lang
     used = set(re.findall(r'"(guardian\.[\w.]+)"', TEXT))
     words = {f"guardian.where.{w}" for w in ("device", "browser", "server", "none")} \
-        | {f"guardian.local.{w}" for w in ("on", "off", "unknown")}
+        | {f"guardian.local.{w}" for w in ("on", "off", "unknown")} \
+        | {"guardian.local.speech", "guardian.local.refused"}  # errors the skill answers with
     assert used | words == keys, "every string is used, and every one used is there"
 
 

@@ -90,7 +90,7 @@ def test_every_dialog_exists(lang):
     for intent in loc.glob("*.intent"):
         assert f'"{intent.name}"' in code, intent.name
     names = ["sent_today", "sent_today_more", "times", "times_one", "and", "sent_nothing", "no_log",
-             "stt_local", "stt_browser", "stt_remote_seen", "stt_remote", "retry_online", "staying_offline", "offline_again",
+             "stt_local", "stt_browser", "stt_remote_seen", "stt_remote", "retry_online", "staying_offline", "offline_again", "offline_needs_local_speech", "offline_refused",
              *(f"kind_{k}" for k in pkg.KINDS)]
     for d in names:
         assert (loc / f"{d}.dialog").read_text(encoding="utf-8").strip(), d
@@ -129,6 +129,17 @@ def test_go_offline_and_online(skill):
     assert not state["enabled"] and last(skill) == "offline_off"
     skill.handle_are_you_online(Message("x"))
     assert last(skill) == "status_online"
+
+
+@pytest.mark.parametrize("error,dialog", [("speech_not_local", "offline_needs_local_speech"),
+                                          ("nft_missing", "offline_refused")])
+def test_the_device_says_no(skill, error, dialog):
+    def refuse(m):
+        m = Message.deserialize(m) if isinstance(m, str) else m
+        skill.bus.emit(m.response({"enabled": False, "stt": "s", "tts": "t", "error": error}))
+    skill.bus.on("ovos.local_only", refuse)
+    skill.handle_go_offline(Message("x"))
+    assert last(skill) == dialog
 
 
 def test_no_phal(skill, monkeypatch):

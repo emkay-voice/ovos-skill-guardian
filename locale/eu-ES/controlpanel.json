@@ -38,5 +38,7 @@
  "guardian.net.everyone": "guztiak",
  "guardian.retry.title": "Linean galdera baterako",
  "guardian.retry.label": "Internet behar duen galdera baterako linean jartzea eskaini",
- "guardian.retry.hint": "Gailua lokalean bakarrik dagoenean eta galdera bati internetik gabe ezin zaionean erantzun, Guardianek galdetzen du galdera horretarako linean jarri behar duen. Gero bere kabuz itzultzen da lineaz kanpo, gehienez minutu bat igaro ondoren."
+ "guardian.retry.hint": "Gailua lokalean bakarrik dagoenean eta galdera bati internetik gabe ezin zaionean erantzun, Guardianek galdetzen du galdera horretarako linean jarri behar duen. Gero bere kabuz itzultzen da lineaz kanpo, gehienez minutu bat igaro ondoren.",
+ "guardian.local.speech": "Ahots-ezagutza edo ahotsa zerbitzari batean dabiltza, beraz lineaz kanpo gailuak ez luke entzungo ez hitz egingo. Aukeratu lehenik gailuko pluginak Ahotsa eta hizkuntza atalean.",
+ "guardian.local.refused": "Gailuak ezin izan du sarea itxi, beraz ez dago lokalean bakarrik."
 }

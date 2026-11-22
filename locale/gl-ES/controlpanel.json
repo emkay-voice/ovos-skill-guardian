@@ -38,5 +38,7 @@
  "guardian.net.everyone": "todos",
  "guardian.retry.title": "En liña para unha pregunta",
  "guardian.retry.label": "Ofrecer conectarse para unha pregunta que precisa internet",
- "guardian.retry.hint": "Cando o dispositivo está só en local e unha pregunta non se pode responder sen internet, o Guardian pregunta se debe conectarse para esa pregunta. Despois volve quedar sen conexión el só, como moito ao cabo dun minuto."
+ "guardian.retry.hint": "Cando o dispositivo está só en local e unha pregunta non se pode responder sen internet, o Guardian pregunta se debe conectarse para esa pregunta. Despois volve quedar sen conexión el só, como moito ao cabo dun minuto.",
+ "guardian.local.speech": "O recoñecemento de voz ou a voz funcionan nun servidor, así que sen conexión o dispositivo non oiría nin falaría. Escolle primeiro complementos no dispositivo en Voz e idioma.",
+ "guardian.local.refused": "O dispositivo non puido pechar a rede, así que non está só en local."
 }

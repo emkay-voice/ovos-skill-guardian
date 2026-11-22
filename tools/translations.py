@@ -354,3 +354,31 @@ RETRY = {
 for lang, texts in RETRY.items():
     for name, text in zip(("retry_online", "staying_offline", "offline_again"), texts):
         Path("locale", lang, f"{name}.dialog").write_text(text + "\n", encoding="utf-8")
+
+# -- local only refused by the device -------------------------------------------
+# dialogs: offline_needs_local_speech (speech works on a server), offline_refused
+REFUSED = {
+"de-DE": ('Ich kann nicht offline gehen: Ich höre oder spreche über einen Server, offline würde ich also weder hören noch sprechen. Wähle zuerst Spracherkennung und eine Stimme, die auf dem Gerät laufen.',
+          'Ich kann gerade nicht offline gehen: Das Gerät konnte das Netzwerk nicht schließen.'),
+"nl-NL": ('Ik kan niet offline gaan: ik hoor of spreek via een server, dus offline zou ik niet horen en niet spreken. Kies eerst spraakherkenning en een stem die op het apparaat werken.',
+          'Ik kan nu niet offline gaan: het apparaat kon het netwerk niet sluiten.'),
+"fr-FR": ("Je ne peux pas passer hors ligne : j'entends ou je parle via un serveur, donc hors ligne je n'entendrais ni ne parlerais. Choisissez d'abord une reconnaissance vocale et une voix qui fonctionnent sur l'appareil.",
+          "Je ne peux pas passer hors ligne pour l'instant : l'appareil n'a pas pu fermer le réseau."),
+"es-ES": ('No puedo desconectarme: oigo o hablo a través de un servidor, así que sin conexión no oiría ni hablaría. Elige primero un reconocimiento de voz y una voz que funcionen en el dispositivo.',
+          'Ahora no puedo desconectarme: el dispositivo no pudo cerrar la red.'),
+"it-IT": ('Non posso andare offline: sento o parlo tramite un server, quindi offline non sentirei né parlerei. Scegli prima un riconoscimento vocale e una voce che funzionino sul dispositivo.',
+          'Ora non posso andare offline: il dispositivo non è riuscito a chiudere la rete.'),
+"pt-BR": ('Não posso ficar offline: eu ouço ou falo por um servidor, então offline eu não ouviria nem falaria. Escolha antes um reconhecimento de voz e uma voz que funcionem no dispositivo.',
+          'Não posso ficar offline agora: o dispositivo não conseguiu fechar a rede.'),
+"pt-PT": ('Não posso ficar offline: ouço ou falo através de um servidor, por isso offline não ouviria nem falaria. Escolha primeiro um reconhecimento de voz e uma voz que funcionem no dispositivo.',
+          'Não posso ficar offline agora: o dispositivo não conseguiu fechar a rede.'),
+"ca-ES": ("No em puc desconnectar: sento o parlo a través d'un servidor, així que sense connexió no sentiria ni parlaria. Tria primer un reconeixement de veu i una veu que funcionin al dispositiu.",
+          'Ara no em puc desconnectar: el dispositiu no ha pogut tancar la xarxa.'),
+"gl-ES": ('Non me podo desconectar: oio ou falo a través dun servidor, así que sen conexión non oiría nin falaría. Escolle primeiro un recoñecemento de voz e unha voz que funcionen no dispositivo.',
+          'Agora non me podo desconectar: o dispositivo non puido pechar a rede.'),
+"eu-ES": ('Ezin naiz deskonektatu: zerbitzari baten bidez entzuten edo hitz egiten dut, beraz lineaz kanpo ez nuke entzungo ez hitz egingo. Aukeratu lehenik gailuan dabiltzan ahots-ezagutza eta ahotsa.',
+          'Orain ezin naiz deskonektatu: gailuak ezin izan du sarea itxi.'),
+}
+for lang, texts in REFUSED.items():
+    for name, text in zip(("offline_needs_local_speech", "offline_refused"), texts):
+        Path("locale", lang, f"{name}.dialog").write_text(text + "\n", encoding="utf-8")

@@ -38,5 +38,7 @@
  "guardian.net.everyone": "alle",
  "guardian.retry.title": "Online for ét spørgsmål",
  "guardian.retry.label": "Tilbyd at gå online for et spørgsmål, der kræver internettet",
- "guardian.retry.hint": "Når enheden kører kun lokalt, og et spørgsmål ikke kan besvares uden internettet, spørger Guardian, om den skal gå online for det ene spørgsmål. Bagefter går den selv offline igen – senest efter et minut."
+ "guardian.retry.hint": "Når enheden kører kun lokalt, og et spørgsmål ikke kan besvares uden internettet, spørger Guardian, om den skal gå online for det ene spørgsmål. Bagefter går den selv offline igen – senest efter et minut.",
+ "guardian.local.speech": "Talegenkendelsen eller stemmen kører på en server, så enheden ville hverken kunne høre eller tale offline. Vælg først plugins på enheden under Stemme og sprog.",
+ "guardian.local.refused": "Enheden kunne ikke lukke for netværket, så den kører ikke kun lokalt."
 }

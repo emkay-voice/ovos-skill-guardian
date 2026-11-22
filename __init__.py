@@ -405,6 +405,11 @@ class GuardianSkill(OVOSSkill):
         state = self.local_only(enabled=True)
         if state is None:
             return self.speak_dialog("no_local_only")
+        if not state.get("enabled"):
+            # the device said no: it could not hear or speak without a
+            # server (ovos-PHAL-plugin-netpolicy), or could not enforce it
+            return self.speak_dialog("offline_needs_local_speech" if state.get("error") == "speech_not_local"
+                                     else "offline_refused")
         self.speak_dialog("offline_on")
 
     @intent_handler("go_online.intent")
@@ -546,9 +551,14 @@ class GuardianSkill(OVOSSkill):
     def handle_local_only(self, message: Message):
         """Local only on or off, from the control panel's page: the device's
         own switch, as "go offline" is by voice."""
-        state = self.local_only(enabled=bool(message.data.get("enabled")))
+        enabled = bool(message.data.get("enabled"))
+        state = self.local_only(enabled=enabled)
         if state is None:
             self.bus.emit(message.response({"error": "guardian.local.cannot"}))
+            return
+        if enabled and not state.get("enabled"):
+            self.bus.emit(message.response({"error": "guardian.local.speech" if state.get("error") == "speech_not_local"
+                                            else "guardian.local.refused"}))
             return
         self.bus.emit(message.response({"enabled": bool(state.get("enabled"))}))
 

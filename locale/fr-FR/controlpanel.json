@@ -38,5 +38,7 @@
  "guardian.net.everyone": "tous",
  "guardian.retry.title": "En ligne pour une question",
  "guardian.retry.label": "Proposer de se connecter pour une question qui a besoin d'internet",
- "guardian.retry.hint": "Quand l'appareil est en local uniquement et qu'une question ne peut pas avoir de réponse sans internet, Guardian demande s'il faut se connecter pour cette seule question. Ensuite, il repasse hors ligne tout seul – au plus tard après une minute."
+ "guardian.retry.hint": "Quand l'appareil est en local uniquement et qu'une question ne peut pas avoir de réponse sans internet, Guardian demande s'il faut se connecter pour cette seule question. Ensuite, il repasse hors ligne tout seul – au plus tard après une minute.",
+ "guardian.local.speech": "La reconnaissance vocale ou la voix fonctionne sur un serveur, donc hors ligne l'appareil n'entendrait ni ne parlerait. Choisissez d'abord des plugins sur l'appareil dans Voix et langue.",
+ "guardian.local.refused": "L'appareil n'a pas pu fermer le réseau, il n'est donc pas en local uniquement."
 }
