@@ -4,7 +4,23 @@
       {
         "name": "Network log",
         "fields": [
-          {"name": "log_path", "type": "text", "label": "Where the network log is", "value": "~/.local/state/emkay/network.jsonl"}
+          {
+            "name": "log_path",
+            "type": "text",
+            "label": "Where the network log is",
+            "value": "~/.local/state/emkay/network.jsonl"
+          }
+        ]
+      },
+      {
+        "name": "Local only",
+        "fields": [
+          {
+            "name": "offer_online_retry",
+            "type": "checkbox",
+            "label": "Offer to go online for one question that needs the internet",
+            "value": "true"
+          }
         ]
       }
     ]

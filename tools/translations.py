@@ -317,3 +317,32 @@ for lang, (off, on, ask, *dialogs) in OFFLINE.items():
         if example not in meta["examples"]:
             meta["examples"].append(example)
     sj.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+# -- online for one question --------------------------------------------------
+# dialogs: retry_online (asked, yes/no), staying_offline (no), offline_again
+# (after the question was asked again online)
+RETRY = {
+"de-DE": ("Dafür brauche ich das Internet, und ich bin offline. Soll ich kurz online gehen und es noch einmal versuchen?",
+          "Okay, ich bleibe offline.", "Ich bin wieder offline."),
+"nl-NL": ("Daar is internet voor nodig, en ik ben offline. Zal ik even online gaan en het opnieuw proberen?",
+          "Oké, ik blijf offline.", "Ik ben weer offline."),
+"fr-FR": ("Il me faut internet pour ça, et je suis hors ligne. Je me connecte un instant pour réessayer ?",
+          "D'accord, je reste hors ligne.", "Je suis de nouveau hors ligne."),
+"es-ES": ("Para eso necesito internet, y estoy sin conexión. ¿Me conecto un momento y lo intento de nuevo?",
+          "Vale, sigo sin conexión.", "Vuelvo a estar sin conexión."),
+"it-IT": ("Per questo serve internet, e sono offline. Vado online un momento e riprovo?",
+          "Va bene, resto offline.", "Sono di nuovo offline."),
+"pt-BR": ("Isso precisa da internet, e estou offline. Posso ficar online um instante e tentar de novo?",
+          "Tudo bem, continuo offline.", "Estou offline de novo."),
+"pt-PT": ("Isso precisa da internet, e estou offline. Posso ficar online um instante e tentar outra vez?",
+          "Está bem, continuo offline.", "Estou offline outra vez."),
+"ca-ES": ("Per això cal internet, i estic fora de línia. Em connecto un moment i ho torno a provar?",
+          "D'acord, continuo fora de línia.", "Torno a estar fora de línia."),
+"gl-ES": ("Para iso cómpre internet, e estou sen conexión. Conéctome un momento e volvo tentalo?",
+          "Vale, sigo sen conexión.", "Volvo estar sen conexión."),
+"eu-ES": ("Horretarako internet behar da, eta lineaz kanpo nago. Une batez konektatu eta berriro saiatuko naiz?",
+          "Ados, lineaz kanpo jarraituko dut.", "Berriro lineaz kanpo nago."),
+}
+for lang, texts in RETRY.items():
+    for name, text in zip(("retry_online", "staying_offline", "offline_again"), texts):
+        Path("locale", lang, f"{name}.dialog").write_text(text + "\n", encoding="utf-8")

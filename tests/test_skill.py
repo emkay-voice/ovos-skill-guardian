@@ -90,7 +90,7 @@ def test_every_dialog_exists(lang):
     for intent in loc.glob("*.intent"):
         assert f'"{intent.name}"' in code, intent.name
     names = ["sent_today", "sent_today_more", "times", "times_one", "and", "sent_nothing", "no_log",
-             "stt_local", "stt_browser", "stt_remote_seen", "stt_remote",
+             "stt_local", "stt_browser", "stt_remote_seen", "stt_remote", "retry_online", "staying_offline", "offline_again",
              *(f"kind_{k}" for k in pkg.KINDS)]
     for d in names:
         assert (loc / f"{d}.dialog").read_text(encoding="utf-8").strip(), d
@@ -262,3 +262,85 @@ def test_where_speech_works():
     assert pkg.where("ovos-stt-plugin-browser", pkg.LOCAL_STT, pkg.BROWSER_STT) == "browser"
     assert pkg.where("ovos-tts-plugin-piper", pkg.LOCAL_TTS, pkg.BROWSER_TTS) == "device"
     assert pkg.where("", pkg.LOCAL_TTS, pkg.BROWSER_TTS) == ""
+
+
+# -- online for one question ---------------------------------------------------
+
+def question(skill, said="what is the weather", session="s1"):
+    ctx = {"session": {"session_id": session}}
+    skill._on_utterance(Message("recognizer_loop:utterance", {"utterances": [said], "lang": "en-US"}, ctx))
+    return ctx
+
+
+def refused(skill):
+    skill._on_request(Message("ovos.network.request", {"t": int(time.time() * 1000), "host": "?",
+                                                       "status": 0, "blocked": True}))
+
+
+def answer_with(skill, ctx, dialog, text="Apologies."):
+    skill._on_speak(Message("speak", {"utterance": text, "meta": {"dialog": dialog}}, ctx))
+
+
+@pytest.fixture
+def retried(skill, monkeypatch):
+    """The utterances the skill asks again."""
+    asked = []
+    skill.bus.on("recognizer_loop:utterance",
+                 lambda m: asked.append(Message.deserialize(m) if isinstance(m, str) else m))
+    monkeypatch.setattr(skill, "schedule_event", lambda *a, **k: None)
+    monkeypatch.setattr(skill, "cancel_scheduled_event", lambda *a, **k: None)
+    # settings outlive a test (they are a file); start from the default
+    skill.settings["offer_online_retry"] = True
+    yield asked
+    skill.settings["offer_online_retry"] = True
+
+
+def test_sounds_like_failure():
+    assert pkg.sounds_like_failure("cant_get_forecast")
+    assert pkg.sounds_like_failure("error.no.internet")
+    assert not pkg.sounds_like_failure("current_weather")
+    assert not pkg.sounds_like_failure(None)
+
+
+def test_offers_to_go_online_ask_again_and_go_back(skill, retried, monkeypatch):
+    state = phal(skill, True)
+    monkeypatch.setattr(skill, "ask_yesno", lambda *a, **k: "yes")
+    ctx = question(skill)
+    refused(skill)
+    answer_with(skill, ctx, "cant_get_forecast")
+    skill._on_handled(Message("ovos.utterance.handled", {}, ctx))
+    assert not state["enabled"], "online for the question"
+    assert retried and retried[-1].data["utterances"] == ["what is the weather"]
+    assert retried[-1].context[pkg.RETRY_FLAG] and retried[-1].context["session"]["session_id"] == "s1"
+    # the question asked again, answered online, then back offline
+    skill._on_utterance(retried[-1])
+    skill._on_handled(Message("ovos.utterance.handled", {}, retried[-1].context))
+    assert state["enabled"] and last(skill) == "offline_again"
+
+
+def test_says_no_and_stays_offline(skill, retried, monkeypatch):
+    state = phal(skill, True)
+    monkeypatch.setattr(skill, "ask_yesno", lambda *a, **k: "no")
+    ctx = question(skill)
+    refused(skill)
+    skill._on_failure(Message("complete_intent_failure", {}, ctx))
+    skill._on_handled(Message("ovos.utterance.handled", {}, ctx))
+    assert state["enabled"] and not retried and last(skill) == "staying_offline"
+
+
+@pytest.mark.parametrize("case", ["answered_locally", "nothing_refused", "not_local_only", "turned_off"])
+def test_does_not_offer(skill, retried, monkeypatch, case):
+    phal(skill, case != "not_local_only")
+    asked = []
+    monkeypatch.setattr(skill, "ask_yesno", lambda *a, **k: asked.append(1) or "yes")
+    if case == "turned_off":
+        skill.settings["offer_online_retry"] = False
+    ctx = question(skill, "who was Lise Meitner")
+    if case != "nothing_refused":
+        refused(skill)
+    if case == "answered_locally":
+        answer_with(skill, ctx, None, "Elise Meitner was an Austrian physicist.")
+    else:
+        skill._on_failure(Message("complete_intent_failure", {}, ctx))
+    skill._on_handled(Message("ovos.utterance.handled", {}, ctx))
+    assert not asked and not retried
