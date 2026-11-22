@@ -83,6 +83,22 @@
    ]
   },
   {
+   "type": "form",
+   "heading": "guardian.retry.title",
+   "fields": [
+    {
+     "name": "offer_online_retry",
+     "label": "guardian.retry.label",
+     "type": "checkbox",
+     "default": true,
+     "hint": "guardian.retry.hint"
+    }
+   ],
+   "save": {
+    "settings": true
+   }
+  },
+  {
    "type": "choice",
    "param": "period",
    "options": [

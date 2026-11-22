@@ -84,6 +84,35 @@ network layer refuses everything but Emkay's own site and the model and voice
 downloads, and a small shield on the screen says it is offline. Where no PHAL
 answers, the skill says this device can't switch.
 
+### Online for one question
+
+When the device is local only and a question could not be answered because
+something it needed was refused, Guardian offers to go online for that one
+question:
+
+    "What's the weather?"
+    "Apologies. I can't get weather forecasts as of now."
+    "That needs the internet, and I'm offline. Shall I go online for a moment and try again?"
+    "Yes."
+    "Right now, it's 4 degrees and cloudy in Copenhagen …"
+    "I'm offline again."
+
+It asks only when both are true for the turn:
+
+- something was **refused**: an `ovos.network.request` entry with
+  `"blocked": true` (the device's local only, e.g. Emkay or
+  ovos-PHAL-plugin-netpolicy) or `"status": 0` (ovos-network-log: no answer);
+- there was **no real answer**: nobody understood the question, nothing was
+  said, the skill's handler failed, or the skill's dialog says it could not
+  (a name like `cant_get_forecast`, `error_no_internet`).
+
+A question answered from what is on the device – the offline wiki answering
+while Wikipedia was refused – is left alone. Yes: local only goes off, the
+question is asked again on the bus in the same session (marked
+`"guardian_retry": true` in its context), and when it has been handled –
+or after a minute, whatever happens – local only goes back on. The setting
+`offer_online_retry` turns the offer off.
+
 ## In the control panel
 
 With [ovos-control-panel](https://github.com/OpenVoiceOS/ovos-control-panel) on the device, the skill brings
@@ -113,6 +142,7 @@ The page switches local only with `ovos.local_only` itself, as "go offline" does
 | setting | default |
 |---|---|
 | `log_path` | `~/.local/state/emkay/network.jsonl` |
+| `offer_online_retry` | `true`: offer to go online for one question that needs it |
 
 ## License
 

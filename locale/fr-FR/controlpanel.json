@@ -35,5 +35,8 @@
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
  "guardian.net.refusedTitle": "Refusées, car l'appareil était en local seulement",
  "guardian.net.filter": "Afficher les requêtes de",
- "guardian.net.everyone": "tous"
+ "guardian.net.everyone": "tous",
+ "guardian.retry.title": "En ligne pour une question",
+ "guardian.retry.label": "Proposer de se connecter pour une question qui a besoin d'internet",
+ "guardian.retry.hint": "Quand l'appareil est en local uniquement et qu'une question ne peut pas avoir de réponse sans internet, Guardian demande s'il faut se connecter pour cette seule question. Ensuite, il repasse hors ligne tout seul – au plus tard après une minute."
 }

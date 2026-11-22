@@ -474,7 +474,7 @@ wheels = [
 
 [[package]]
 name = "ovos-skill-guardian"
-version = "0.1.0a2"
+version = "0.1.0a11"
 source = { editable = "." }
 dependencies = [
     { name = "ovos-utils" },

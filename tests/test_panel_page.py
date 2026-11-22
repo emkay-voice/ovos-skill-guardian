@@ -46,9 +46,19 @@ def test_the_page_speaks_every_language_the_skill_does():
 
 def test_the_panel_reads_it():
     described = pytest.importorskip("ovos_webui.described")
-    page, refs = described.check(PAGE, "ovos-skill-guardian")
-    assert [b["type"] for b in page["blocks"]] == ["text", "status", "choice", "status", "list", "list", "text"]
+    page, refs = described.check(PAGE, "ovos-skill-guardian", skill_id="ovos-skill-guardian.emkay-voice")
+    assert [b["type"] for b in page["blocks"]] == ["text", "status", "form", "choice", "status", "list", "list", "text"]
     assert not refs["b1.a0"]["privileged"], "local only is the device's own switch, as by voice"
+
+
+def test_the_offer_can_be_switched_off_in_the_panel():
+    form = next(b for b in PAGE["blocks"] if b["type"] == "form")
+    assert form["save"] == {"settings": True}, "the skill's own settings.json"
+    field, = form["fields"]
+    assert (field["name"], field["type"], field["default"]) == ("offer_online_retry", "checkbox", True)
+    meta = json.loads((ROOT / "settingsmeta.json").read_text())
+    names = [f["name"] for s in meta["skillMetadata"]["sections"] for f in s["fields"]]
+    assert field["name"] in names, "the same setting as in settingsmeta.json"
 
 
 def answer(skill, msg_type, **data):

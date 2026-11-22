@@ -35,5 +35,8 @@
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
  "guardian.net.refusedTitle": "Rechazadas, porque el dispositivo estaba solo en local",
  "guardian.net.filter": "Mostrar las peticiones de",
- "guardian.net.everyone": "todos"
+ "guardian.net.everyone": "todos",
+ "guardian.retry.title": "En línea para una pregunta",
+ "guardian.retry.label": "Ofrecer conectarse para una pregunta que necesita internet",
+ "guardian.retry.hint": "Cuando el dispositivo está solo en local y una pregunta no se puede responder sin internet, Guardian pregunta si debe conectarse para esa pregunta. Después vuelve a desconectarse solo, como mucho al cabo de un minuto."
 }

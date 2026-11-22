@@ -156,6 +156,22 @@ ANSWER_TIMEOUT = 5
 #: the turn before "what just happened?" is forgotten after this long (s)
 TURN_MEMORY = 30 * 60
 
+#: marks a question asked again online, in the utterance's context
+RETRY_FLAG = "guardian_retry"
+#: back to local only after this long (s), even if the retried question never ends
+RETRY_TIMEOUT = 60
+#: how long after a turn without an answer a refused connection may still be reported (s)
+REFUSAL_GRACE = 2
+#: words in a dialog's name that mean "I could not" (cant_get_forecast, error_no_internet …)
+FAILURE_WORDS = ("cant", "cannot", "can_not", "unable", "error", "fail", "unavailable",
+                 "not_available", "no_internet", "no_network", "no_connection")
+
+
+def sounds_like_failure(dialog: str) -> bool:
+    """Whether a dialog's name says the skill could not answer."""
+    name = (dialog or "").lower().replace("-", "_").replace(".", "_").replace(" ", "_")
+    return any(word in name for word in FAILURE_WORDS)
+
 
 def skill_words(skill_id: str) -> str:
     """A skill id said aloud: ovos-skill-date-time.openvoiceos -> date time."""
@@ -188,6 +204,12 @@ class GuardianSkill(OVOSSkill):
         # process or container (the file may be in another container)
         self.heard = []
         self.add_event("ovos.network.request", self._on_request, speak_errors=False)
+        # local only and a question that needed the internet: offer to go
+        # online for that one question, ask it again, and go back offline
+        self.add_event("complete_intent_failure", self._on_failure, speak_errors=False)
+        # a skill's handler that raised (its "An error occurred …" has no dialog name)
+        self.add_event("mycroft.skill.handler.error", self._on_failure, speak_errors=False)
+        self.add_event("ovos.utterance.handled", self._on_handled, speak_errors=False)
         # the control panel's page
         self.add_event(GUARDIAN_NETWORK, self.handle_network, speak_errors=False)
         self.add_event(GUARDIAN_STATUS, self.handle_status, speak_errors=False)
@@ -198,6 +220,13 @@ class GuardianSkill(OVOSSkill):
         cutoff = (time.time() - 86400 * 2) * 1000
         if len(self.heard) > 5000 or (self.heard and self.heard[0].get("t", 0) < cutoff):
             self.heard = [e for e in self.heard[-5000:] if e.get("t", 0) >= cutoff]
+        # refused (local only) or never answered: count it for the turns going on
+        entry = message.data
+        if entry.get("blocked") or entry.get("status") == 0:
+            for s in self.turns.values():
+                for turn in s.get("pending", []) + s.get("ending", []):
+                    if entry.get("t", 0) / 1000 >= turn["t"] - 1:
+                        turn["refused"] += 1
 
     def network_log(self, since: float = 0):
         """The network log since `since`: the file, and what was heard on the
@@ -219,18 +248,33 @@ class GuardianSkill(OVOSSkill):
         s = self.turns.setdefault(self._session(message), {})
         if s.get("now"):
             s["before"] = s["now"]
-        s["now"] = {"said": utt, "t": time.time(), "skill": "", "intent": "", "answers": []}
+        s["now"] = {"said": utt, "t": time.time(), "skill": "", "intent": "", "answers": [],
+                    "dialogs": [], "refused": 0, "failed": False, "message": message,
+                    "retry": bool((message.context or {}).get(RETRY_FLAG))}
+        # the turns not handled yet, oldest first: OVOS handles a session's
+        # utterances in turn, so ovos.utterance.handled ends the oldest
+        # an answer to our own yes/no question is taken by get_response and is
+        # not handled as a turn of its own (no ovos.utterance.handled for it)
+        if not s.get("asking"):
+            s["pending"] = (s.get("pending", []) + [s["now"]])[-5:]
+
+    def _turn(self, message):
+        """The turn a message belongs to: the oldest not handled yet."""
+        s = self.turns.get(self._session(message), {})
+        pending = s.get("pending")
+        return pending[0] if pending else s.get("now")
 
     def _on_matched(self, message):
-        now = self.turns.get(self._session(message), {}).get("now")
+        now = self._turn(message)
         if now is not None:
             now["skill"] = message.data.get("skill_id") or now["skill"]
             now["intent"] = message.data.get("intent_name") or message.data.get("intent_type") or ""
 
     def _on_speak(self, message):
-        now = self.turns.get(self._session(message), {}).get("now")
+        now = self._turn(message)
         if now is not None:
             now["answers"].append(message.data.get("utterance", ""))
+            now["dialogs"].append((message.data.get("meta") or {}).get("dialog") or "")
             if not now["skill"]:
                 now["skill"] = (message.context or {}).get("skill_id", "")
 
@@ -369,6 +413,73 @@ class GuardianSkill(OVOSSkill):
         if state is None:
             return self.speak_dialog("no_local_only")
         self.speak_dialog("offline_off")
+
+    # -- online for one question ----------------------------------------------
+
+    def _on_failure(self, message):
+        now = self._turn(message)
+        if now is not None:
+            now["failed"] = True
+
+    def needed_the_internet(self, turn: dict) -> bool:
+        """Something tried to go out and was refused, and there was no real
+        answer: nobody understood, nothing was said, or the skill said it
+        could not (its dialog's name, e.g. cant_get_forecast). A question
+        answered from what is on the device (offline wiki) is left alone."""
+        if turn["skill"] == self.skill_id:
+            return False  # Guardian's own answers ("I'm offline now")
+        no_answer = turn["failed"] or not turn["answers"] or any(map(sounds_like_failure, turn["dialogs"]))
+        if not no_answer:
+            return False
+        # the refusal can be reported a moment after the turn ended (the
+        # device reports refused connections as it sees them): give it time
+        deadline = time.time() + REFUSAL_GRACE
+        while not turn["refused"] and time.time() < deadline:
+            time.sleep(0.1)
+        return bool(turn["refused"])
+
+    def _on_handled(self, message):
+        session = self._session(message)
+        pending = self.turns.get(session, {}).get("pending")
+        if not pending:
+            return
+        turn = pending.pop(0)
+        # still hears refusals while it decides (they can come a moment late)
+        ending = self.turns[session].setdefault("ending", [])
+        ending.append(turn)
+        try:
+            self._end_turn(session, turn)
+        finally:
+            ending.remove(turn)
+
+    def _end_turn(self, session: str, turn: dict):
+        if turn["retry"]:
+            self.cancel_scheduled_event(f"guardian_offline_{session}")
+            self.back_offline()
+            return
+        if not self.settings.get("offer_online_retry", True) or not self.needed_the_internet(turn):
+            return
+        state = self.local_only("status")
+        if not state or not state.get("enabled"):
+            return  # not local only: a real network problem, not ours to solve
+        self.turns[session]["asking"] = True
+        try:
+            answer = self.ask_yesno("retry_online")
+        finally:
+            self.turns[session]["asking"] = False
+        if answer != "yes":
+            return self.speak_dialog("staying_offline")
+        if self.local_only(enabled=False) is None:
+            return self.speak_dialog("no_local_only")
+        original = turn["message"]
+        context = dict(original.context or {}, **{RETRY_FLAG: True})
+        # whatever happens to the question, the device goes back offline
+        self.schedule_event(self.back_offline, RETRY_TIMEOUT, name=f"guardian_offline_{session}")
+        self.bus.emit(Message("recognizer_loop:utterance", dict(original.data), context))
+
+    def back_offline(self, message=None):
+        if self.local_only(enabled=True) is not None:
+            self.speak_dialog("offline_again")
 
     # -- the same, as data, for the control panel's page --------------------
 

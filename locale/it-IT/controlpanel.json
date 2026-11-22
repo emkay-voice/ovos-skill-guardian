@@ -35,5 +35,8 @@
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
  "guardian.net.refusedTitle": "Rifiutate, perché il dispositivo era solo locale",
  "guardian.net.filter": "Mostra le richieste di",
- "guardian.net.everyone": "tutti"
+ "guardian.net.everyone": "tutti",
+ "guardian.retry.title": "Online per una domanda",
+ "guardian.retry.label": "Proporre di andare online per una domanda che ha bisogno di internet",
+ "guardian.retry.hint": "Quando il dispositivo è solo locale e a una domanda non si può rispondere senza internet, Guardian chiede se andare online per quella sola domanda. Poi torna offline da solo, al più tardi dopo un minuto."
 }
