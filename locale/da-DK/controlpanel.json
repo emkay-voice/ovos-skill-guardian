@@ -35,5 +35,8 @@
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
  "guardian.net.refusedTitle": "Afvist, fordi enheden kørte kun lokalt",
  "guardian.net.filter": "Vis forespørgsler fra",
- "guardian.net.everyone": "alle"
+ "guardian.net.everyone": "alle",
+ "guardian.retry.title": "Online for ét spørgsmål",
+ "guardian.retry.label": "Tilbyd at gå online for et spørgsmål, der kræver internettet",
+ "guardian.retry.hint": "Når enheden kører kun lokalt, og et spørgsmål ikke kan besvares uden internettet, spørger Guardian, om den skal gå online for det ene spørgsmål. Bagefter går den selv offline igen – senest efter et minut."
 }

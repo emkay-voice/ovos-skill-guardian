@@ -35,5 +35,8 @@
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
  "guardian.net.refusedTitle": "Rebutjades, perquè el dispositiu estava només en local",
  "guardian.net.filter": "Mostra les peticions de",
- "guardian.net.everyone": "tothom"
+ "guardian.net.everyone": "tothom",
+ "guardian.retry.title": "En línia per a una pregunta",
+ "guardian.retry.label": "Oferir connectar-se per a una pregunta que necessita internet",
+ "guardian.retry.hint": "Quan el dispositiu està només en local i una pregunta no es pot respondre sense internet, el Guardian pregunta si s'ha de connectar per a aquella pregunta. Després torna a estar fora de línia tot sol, com a molt al cap d'un minut."
 }

@@ -185,12 +185,20 @@ for lang, d in T.items():
         (loc / f"{name}.dialog").write_text(d[name] + "\n", encoding="utf-8")
     for kind, word in zip(KINDS, d["kinds"]):
         (loc / f"kind_{kind}.dialog").write_text(word + "\n", encoding="utf-8")
-    (loc / "skill.json").write_text(json.dumps({
-        "skill_id": "ovos-skill-guardian.emkay-voice",
-        "source": "https://github.com/emkay-voice/ovos-skill-guardian",
-        "name": d["name"], "description": d["description"], "examples": d["examples"],
-        "tags": ["privacy", "network", "emkay"],
-        "icon": "https://raw.githubusercontent.com/emkay-voice/ovos-skill-guardian/main/res/icon.png"}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    # skill.json: merged over what is there, so fields set elsewhere (author,
+    # license, pip_spec …) and examples added by other parts of this script or
+    # tools/what_happened.py are kept
+    sj = loc / "skill.json"
+    meta = json.loads(sj.read_text(encoding="utf-8")) if sj.exists() else {}
+    meta.setdefault("skill_id", "ovos-skill-guardian.emkay-voice")
+    meta.setdefault("source", "https://github.com/emkay-voice/ovos-skill-guardian")
+    meta.update({"name": d["name"], "description": d["description"],
+                 "tags": ["privacy", "network", "emkay"],
+                 "icon": "https://raw.githubusercontent.com/emkay-voice/ovos-skill-guardian/main/res/icon.png"})
+    examples = list(d["examples"])
+    examples += [e for e in meta.get("examples", []) if e not in examples]
+    meta["examples"] = examples
+    sj.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(lang)
 
 # -- local only ("go offline", "go online", "are you online?") ----------------

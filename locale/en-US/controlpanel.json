@@ -35,5 +35,8 @@
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
  "guardian.net.refusedTitle": "Refused, because the device was local only",
  "guardian.net.filter": "Show the requests of",
- "guardian.net.everyone": "everyone"
+ "guardian.net.everyone": "everyone",
+ "guardian.retry.title": "Online for one question",
+ "guardian.retry.label": "Offer to go online for a question that needs the internet",
+ "guardian.retry.hint": "When the device is local only and a question can't be answered without the internet, Guardian asks whether to go online for that one question. Afterwards it goes back offline by itself – at the latest after a minute."
 }

@@ -35,5 +35,8 @@
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
  "guardian.net.refusedTitle": "Geweigerd, omdat het apparaat alleen lokaal was",
  "guardian.net.filter": "Toon de verzoeken van",
- "guardian.net.everyone": "iedereen"
+ "guardian.net.everyone": "iedereen",
+ "guardian.retry.title": "Online voor één vraag",
+ "guardian.retry.label": "Aanbieden om online te gaan voor een vraag die internet nodig heeft",
+ "guardian.retry.hint": "Als het apparaat alleen lokaal werkt en een vraag niet zonder internet beantwoord kan worden, vraagt Guardian of hij voor die ene vraag online moet gaan. Daarna gaat hij vanzelf weer offline – uiterlijk na een minuut."
 }
