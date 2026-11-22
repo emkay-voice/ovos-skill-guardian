@@ -224,9 +224,9 @@ class GuardianSkill(OVOSSkill):
         entry = message.data
         if entry.get("blocked") or entry.get("status") == 0:
             for s in self.turns.values():
-                now = s.get("now")
-                if now and entry.get("t", 0) / 1000 >= now["t"] - 1:
-                    now["refused"] += 1
+                for turn in s.get("pending", []) + s.get("ending", []):
+                    if entry.get("t", 0) / 1000 >= turn["t"] - 1:
+                        turn["refused"] += 1
 
     def network_log(self, since: float = 0):
         """The network log since `since`: the file, and what was heard on the
@@ -251,15 +251,24 @@ class GuardianSkill(OVOSSkill):
         s["now"] = {"said": utt, "t": time.time(), "skill": "", "intent": "", "answers": [],
                     "dialogs": [], "refused": 0, "failed": False, "message": message,
                     "retry": bool((message.context or {}).get(RETRY_FLAG))}
+        # the turns not handled yet, oldest first: OVOS handles a session's
+        # utterances in turn, so ovos.utterance.handled ends the oldest
+        s["pending"] = (s.get("pending", []) + [s["now"]])[-5:]
+
+    def _turn(self, message):
+        """The turn a message belongs to: the oldest not handled yet."""
+        s = self.turns.get(self._session(message), {})
+        pending = s.get("pending")
+        return pending[0] if pending else s.get("now")
 
     def _on_matched(self, message):
-        now = self.turns.get(self._session(message), {}).get("now")
+        now = self._turn(message)
         if now is not None:
             now["skill"] = message.data.get("skill_id") or now["skill"]
             now["intent"] = message.data.get("intent_name") or message.data.get("intent_type") or ""
 
     def _on_speak(self, message):
-        now = self.turns.get(self._session(message), {}).get("now")
+        now = self._turn(message)
         if now is not None:
             now["answers"].append(message.data.get("utterance", ""))
             now["dialogs"].append((message.data.get("meta") or {}).get("dialog") or "")
@@ -405,7 +414,7 @@ class GuardianSkill(OVOSSkill):
     # -- online for one question ----------------------------------------------
 
     def _on_failure(self, message):
-        now = self.turns.get(self._session(message), {}).get("now")
+        now = self._turn(message)
         if now is not None:
             now["failed"] = True
 
@@ -428,10 +437,19 @@ class GuardianSkill(OVOSSkill):
 
     def _on_handled(self, message):
         session = self._session(message)
-        turn = self.turns.get(session, {}).get("now")
-        if not turn or turn.get("done"):
+        pending = self.turns.get(session, {}).get("pending")
+        if not pending:
             return
-        turn["done"] = True
+        turn = pending.pop(0)
+        # still hears refusals while it decides (they can come a moment late)
+        ending = self.turns[session].setdefault("ending", [])
+        ending.append(turn)
+        try:
+            self._end_turn(session, turn)
+        finally:
+            ending.remove(turn)
+
+    def _end_turn(self, session: str, turn: dict):
         if turn["retry"]:
             self.cancel_scheduled_event(f"guardian_offline_{session}")
             self.back_offline()
