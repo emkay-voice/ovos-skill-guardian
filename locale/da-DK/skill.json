@@ -1,6 +1,10 @@
 {
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "package_name": "ovos-skill-guardian",
+  "pip_spec": "ovos-skill-guardian",
+  "license": "Apache-2.0",
+  "author": "emkay-voice",
   "name": "Vogter",
   "description": "Dit privatliv med stemmen: hvad assistenten har sendt ud i dag, hvem der hører, hvad du siger, og offline-tilstand, så intet af det du siger forlader enheden.",
   "examples": [

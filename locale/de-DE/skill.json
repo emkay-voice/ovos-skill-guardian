@@ -1,6 +1,10 @@
 {
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "package_name": "ovos-skill-guardian",
+  "pip_spec": "ovos-skill-guardian",
+  "license": "Apache-2.0",
+  "author": "emkay-voice",
   "name": "Wächter",
   "description": "Deine Privatsphäre per Stimme: was der Assistent heute nach draußen geschickt hat, wer hört, was du sagst, und offline gehen, damit nichts, was du sagst, das Gerät verlässt.",
   "examples": [

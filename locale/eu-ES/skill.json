@@ -1,6 +1,10 @@
 {
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "package_name": "ovos-skill-guardian",
+  "pip_spec": "ovos-skill-guardian",
+  "license": "Apache-2.0",
+  "author": "emkay-voice",
   "name": "Zaindaria",
   "description": "Zure pribatutasuna ahotsez: laguntzaileak gaur kanpora bidali duena, esaten duzuna nork entzuten duen, eta deskonektatzea, esaten duzun ezer gailutik atera ez dadin.",
   "examples": [

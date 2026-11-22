@@ -1,6 +1,10 @@
 {
   "skill_id": "ovos-skill-guardian.emkay-voice",
   "source": "https://github.com/emkay-voice/ovos-skill-guardian",
+  "package_name": "ovos-skill-guardian",
+  "pip_spec": "ovos-skill-guardian",
+  "license": "Apache-2.0",
+  "author": "emkay-voice",
   "name": "Garda",
   "description": "A túa privacidade coa voz: que enviou hoxe o asistente, quen oe o que dis e o modo sen conexión para que nada do que dis saia do dispositivo.",
   "examples": [
