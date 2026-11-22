@@ -87,14 +87,15 @@ answers, the skill says this device can't switch.
 ## In the control panel
 
 With [ovos-control-panel](https://github.com/OpenVoiceOS/ovos-control-panel) on the device, the skill brings
-its own page, **Privacy**, with the everyday pages. It shows:
+its own page, **Privacy**, with the everyday pages. The page is described in `controlpanel.json`, and its
+words are in `locale/<lang>/controlpanel.json`: the panel draws it, and no code of the skill runs in the panel.
+It shows:
 
 - who hears you and who speaks: the plugin, whether it works on the device, in the browser or on a server, and
   the servers speech went to today;
 - local only, with a button to switch it on and off, when the device can;
 - what went out today, yesterday or in the last 7 days: service by service, with how many times, who asked and
-  when, and every request, which you can narrow down to one skill. Requests refused in local only are shown as
-  refused.
+  when, and the newest 200 requests. Requests refused in local only are listed by themselves.
 
 It is in all of the skill's languages.
 

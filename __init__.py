@@ -79,8 +79,12 @@ BROWSER_TTS = ("ovos-tts-plugin-browser",)
 #: the messages behind the control panel's page
 GUARDIAN_NETWORK = "ovos.guardian.network"
 GUARDIAN_STATUS = "ovos.guardian.status"
+GUARDIAN_LOCAL_ONLY = "ovos.guardian.local_only"
+#: the periods the control panel's page offers, in days back from today
+PERIODS = {"today": 0, "yesterday": 1, "week": 6}
 #: the most requests one answer lists (the summary counts them all)
 MAX_ENTRIES = 1000
+PAGE_ENTRIES = 200
 
 
 def where(module: str, local: tuple, browser: tuple) -> str:
@@ -134,9 +138,15 @@ def read_log(path: str, since: float = 0) -> list:
     return out
 
 
-def start_of_today() -> float:
+def start_of_today(days_back: int = 0) -> float:
     lt = time.localtime()
-    return time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday, 0, 0, 0, 0, 0, -1))
+    return time.mktime((lt.tm_year, lt.tm_mon, lt.tm_mday - days_back, 0, 0, 0, 0, 0, -1))
+
+
+def period_bounds(name) -> tuple:
+    """`since` and `until` for one of PERIODS; today for any other."""
+    until = start_of_today() if name == "yesterday" else time.time() + 60
+    return start_of_today(PERIODS.get(name, 0)), until
 
 
 #: seconds to wait for the device to answer a local only request
@@ -181,6 +191,7 @@ class GuardianSkill(OVOSSkill):
         # the control panel's page
         self.add_event(GUARDIAN_NETWORK, self.handle_network, speak_errors=False)
         self.add_event(GUARDIAN_STATUS, self.handle_status, speak_errors=False)
+        self.add_event(GUARDIAN_LOCAL_ONLY, self.handle_local_only, speak_errors=False)
 
     def _on_request(self, message):
         self.heard.append(dict(message.data))
@@ -362,22 +373,35 @@ class GuardianSkill(OVOSSkill):
     # -- the same, as data, for the control panel's page --------------------
 
     def handle_network(self, message: Message):
-        """What went out between `since` and `until` (seconds since 1970;
-        the start of today and now by default): the services, and the
-        requests themselves, newest first. The assistant's own files ("self")
-        are left out, as when it is asked aloud."""
-        since = float(message.data.get("since") or start_of_today())
-        until = float(message.data.get("until") or time.time() + 60)
-        limit = max(1, min(int(message.data.get("limit") or MAX_ENTRIES), MAX_ENTRIES))
+        """What went out in a `period` (today, yesterday or week), or between
+        `since` and `until` (seconds since 1970; the start of today and now
+        by default): the services, and the requests themselves, newest
+        first. The assistant's own files ("self") are left out, as when it
+        is asked aloud."""
+        since, until = period_bounds(message.data.get("period"))
+        since = float(message.data.get("since") or since)
+        until = float(message.data.get("until") or until)
+        # the page asks by period, and shows the newest PAGE_ENTRIES
+        default = PAGE_ENTRIES if message.data.get("period") else MAX_ENTRIES
+        limit = max(1, min(int(message.data.get("limit") or default), MAX_ENTRIES))
         entries = self.network_log(since)
         data = {"has_log": entries is not None, "log_path": self.log_path,
-                "since": since, "until": until, "services": [], "entries": [], "total": 0}
+                "since": since, "until": until, "services": [], "entries": [], "total": 0,
+                "refused": 0, "service_count": 0, "nothing": False}
         if entries is not None:
             entries = [e for e in entries if e.get("kind") != "self" and e.get("t", 0) / 1000 <= until]
-            data["services"] = summarize(entries)
+            services = summarize(entries)
+            # the times in seconds, as the page shows them
+            data["services"] = [dict(s, key=f"{s['kind']}:{s['service']}", last_s=s["last"] / 1000)
+                                for s in services]
             data["total"] = len(entries)
+            data["refused"] = sum(s["blocked"] for s in services)
+            data["service_count"] = len(services)
+            data["nothing"] = not entries
             keep = ("t", "host", "method", "status", "bytes", "who", "kind", "service", "blocked")
-            data["entries"] = [{k: e[k] for k in keep if k in e} for e in reversed(entries[-limit:])]
+            data["entries"] = [dict({k: e[k] for k in keep if k in e}, id=str(n), when=e.get("t", 0) / 1000,
+                                    blocked=bool(e.get("blocked")))
+                               for n, e in enumerate(reversed(entries[-limit:]))]
         self.bus.emit(message.response(data))
 
     def handle_status(self, message: Message):
@@ -391,12 +415,31 @@ class GuardianSkill(OVOSSkill):
                               if e.get("kind") == kind and not e.get("blocked")} - {""})
                 for kind in ("stt", "tts")}
         state = self.local_only("status")
+        enabled = bool(state and state.get("enabled"))
+        hears = where(stt, LOCAL_STT, BROWSER_STT)
+        speaks = where(tts, LOCAL_TTS, BROWSER_TTS)
         self.bus.emit(message.response({
-            "stt": {"module": stt, "where": where(stt, LOCAL_STT, BROWSER_STT), "hosts": seen["stt"]},
-            "tts": {"module": tts, "where": where(tts, LOCAL_TTS, BROWSER_TTS), "hosts": seen["tts"]},
-            "local_only": None if state is None else {"enabled": bool(state.get("enabled"))},
+            "stt": {"module": stt, "where": hears, "hosts": seen["stt"]},
+            "tts": {"module": tts, "where": speaks, "hosts": seen["tts"]},
+            "local_only": None if state is None else {"enabled": enabled},
             "has_log": self.network_log(start_of_today()) is not None,
+            # the same, as the page shows it: a word per state, and yes/no
+            "hears": hears or "none", "speaks": speaks or "none",
+            "hears_browser": hears == "browser", "hears_server": hears == "server",
+            "speaks_browser": speaks == "browser", "speaks_server": speaks == "server",
+            "local": "unknown" if state is None else ("on" if enabled else "off"),
+            "can_go_offline": state is not None and not enabled,
+            "can_go_online": enabled, "cannot_switch": state is None,
         }))
+
+    def handle_local_only(self, message: Message):
+        """Local only on or off, from the control panel's page: the device's
+        own switch, as "go offline" is by voice."""
+        state = self.local_only(enabled=bool(message.data.get("enabled")))
+        if state is None:
+            self.bus.emit(message.response({"error": "guardian.local.cannot"}))
+            return
+        self.bus.emit(message.response({"enabled": bool(state.get("enabled"))}))
 
     @intent_handler("are_you_online.intent")
     def handle_are_you_online(self, message: Message):
