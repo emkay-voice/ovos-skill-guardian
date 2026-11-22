@@ -4,11 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ovos-skill-guardian"
-version = "0.1.0a10"
+version = "0.1.0a11"
 description = "OpenVoiceOS skill: your privacy by voice. What the assistant sent out today, what just happened, who hears what you say, and going offline (local only)"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [{name = "emkay-voice"}]
+maintainers = [{name = "Andreas Lorensen"}]
 requires-python = ">=3.10"
 keywords = ["ovos", "openvoiceos", "skill", "privacy", "network", "emkay"]
 classifiers = [
