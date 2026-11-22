@@ -1,0 +1,155 @@
+{
+ "controlpanel": 1,
+ "id": "guardian",
+ "path": "/privacy",
+ "title": "guardian.title",
+ "group": "everyday",
+ "order": 55,
+ "icon": "controlpanel.svg",
+ "bus": "ovos.guardian.",
+ "blocks": [
+  {
+   "type": "text",
+   "text": "guardian.intro"
+  },
+  {
+   "type": "status",
+   "heading": "guardian.now.title",
+   "query": "ovos.guardian.status",
+   "refresh": 30,
+   "rows": [
+    {
+     "label": "guardian.hears",
+     "value": "{hears@guardian.where}"
+    },
+    {
+     "text": "guardian.hint.browser",
+     "when": "hears_browser"
+    },
+    {
+     "text": "guardian.hint.server",
+     "when": "hears_server"
+    },
+    {
+     "label": "guardian.hint.hosts",
+     "value": "{stt.hosts}",
+     "when": "stt.hosts"
+    },
+    {
+     "label": "guardian.speaks",
+     "value": "{speaks@guardian.where}"
+    },
+    {
+     "text": "guardian.hint.browserVoice",
+     "when": "speaks_browser"
+    },
+    {
+     "text": "guardian.hint.serverVoice",
+     "when": "speaks_server"
+    },
+    {
+     "label": "guardian.hint.hosts",
+     "value": "{tts.hosts}",
+     "when": "tts.hosts"
+    },
+    {
+     "label": "guardian.local",
+     "value": "{local@guardian.local}"
+    },
+    {
+     "text": "guardian.local.cannot",
+     "when": "cannot_switch"
+    }
+   ],
+   "actions": [
+    {
+     "label": "guardian.local.goOffline",
+     "send": "ovos.guardian.local_only",
+     "data": {
+      "enabled": true
+     },
+     "when": "can_go_offline",
+     "privileged": false
+    },
+    {
+     "label": "guardian.local.goOnline",
+     "send": "ovos.guardian.local_only",
+     "data": {
+      "enabled": false
+     },
+     "when": "can_go_online",
+     "privileged": false
+    }
+   ]
+  },
+  {
+   "type": "choice",
+   "param": "period",
+   "options": [
+    {
+     "value": "today",
+     "label": "guardian.net.today"
+    },
+    {
+     "value": "yesterday",
+     "label": "guardian.net.yesterday"
+    },
+    {
+     "value": "week",
+     "label": "guardian.net.week"
+    }
+   ]
+  },
+  {
+   "type": "status",
+   "heading": "guardian.net.title",
+   "query": "ovos.guardian.network",
+   "rows": [
+    {
+     "text": "guardian.net.nolog",
+     "when": "!has_log"
+    },
+    {
+     "text": "guardian.net.nothing",
+     "when": "nothing"
+    },
+    {
+     "text": "guardian.net.sum",
+     "when": "total"
+    },
+    {
+     "text": "guardian.net.sumRefused",
+     "when": "refused"
+    }
+   ]
+  },
+  {
+   "type": "list",
+   "heading": "guardian.net.services",
+   "query": "ovos.guardian.network",
+   "items": "services",
+   "key": "key",
+   "title": "{service}",
+   "meta": "guardian.net.svcMeta",
+   "empty": "guardian.net.nothing"
+  },
+  {
+   "type": "list",
+   "query": "ovos.guardian.network",
+   "items": "entries",
+   "key": "id",
+   "title": "{host}",
+   "meta": "guardian.net.entryMeta",
+   "empty": "guardian.net.nothing",
+   "split": {
+    "by": "blocked",
+    "false": "guardian.net.all",
+    "true": "guardian.net.refusedTitle"
+   }
+  },
+  {
+   "type": "text",
+   "text": "guardian.ask"
+  }
+ ]
+}

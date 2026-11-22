@@ -1,5 +1,6 @@
-"""Guardian's page in ovos-control-panel: its description, its strings in
-every language the skill speaks, and its routes talking to the skill."""
+"""Guardian's page in ovos-control-panel, described in controlpanel.json: the
+file, its strings in every language the skill speaks, and the skill's answers
+to the page over the bus."""
 import json
 import re
 import time
@@ -11,92 +12,79 @@ import test_skill
 from test_skill import entry, phal, skill, write  # noqa: F401 - skill is a fixture
 
 pkg = test_skill.pkg
-from ovos_skill_guardian import panel  # noqa: E402 - after the package is loaded
 
 ROOT = Path(__file__).resolve().parents[1]
-PANEL = ROOT / "panel"
-LANGS = {p.name.split("-")[0] for p in (ROOT / "locale").iterdir() if p.is_dir()}
+TEXT = (ROOT / "controlpanel.json").read_text(encoding="utf-8")
+PAGE = json.loads(TEXT)
 
 
-def test_the_page_description_names_files_that_exist():
-    page = panel.PAGE
-    assert page["api_version"] == 1 and page["id"] == "guardian"
-    for key in ("html", "icon"):
-        assert (PANEL / page[key]).is_file(), key
-    assert callable(page["routes"]) and page["group"] == "everyday"
+def test_the_page_names_files_that_exist_and_its_own_messages():
+    assert PAGE["controlpanel"] == 1 and PAGE["id"] == "guardian" and PAGE["path"] == "/privacy"
+    assert (ROOT / PAGE["icon"]).is_file()
+    sent = re.findall(r'"(?:query|send)": "([^"]+)"', TEXT)
+    assert sent and all(m.startswith(PAGE["bus"]) for m in sent)
+    assert set(sent) == {pkg.GUARDIAN_STATUS, pkg.GUARDIAN_NETWORK, pkg.GUARDIAN_LOCAL_ONLY}
+    periods = next(b for b in PAGE["blocks"] if b["type"] == "choice")["options"]
+    assert [o["value"] for o in periods] == list(pkg.PERIODS)
 
 
 def test_the_page_speaks_every_language_the_skill_does():
-    files = {p.stem: json.loads(p.read_text(encoding="utf-8")) for p in (PANEL / "i18n").glob("*.json")}
-    assert LANGS <= set(files)
-    keys = set(files["en"])
+    files = {p.parent.name: json.loads(p.read_text(encoding="utf-8"))
+             for p in (ROOT / "locale").glob("*/controlpanel.json")}
+    assert set(files) == {p.name for p in (ROOT / "locale").iterdir() if p.is_dir()}
+    keys = set(files["en-US"])
     for lang, table in files.items():
         assert set(table) == keys, lang
         assert all(text.strip() for text in table.values()), lang
-        assert "{n}" in table["guardian.net.sum"] and "{s}" in table["guardian.net.sum"], lang
-    html = (PANEL / "page.html").read_text(encoding="utf-8")
-    used = set(re.findall(r'data-i18n="([^"]+)"', html)) | set(re.findall(r'\bt\("([^"]+)"', html)) \
-        | set(re.findall(r"aria-label:([\w.]+)", html))
-    dynamic = {k for k in used if k.endswith(".")}
-    assert used - dynamic <= keys, "a string the page uses has no translation"
-    for prefix, names in (("guardian.kind.", pkg.KINDS), ("guardian.where.", ("device", "browser", "server", "none"))):
-        assert {prefix + n for n in names} <= keys
+        assert "{total}" in table["guardian.net.sum"] and "{service_count}" in table["guardian.net.sum"], lang
+        assert "{refused}" in table["guardian.net.sumRefused"], lang
+    used = set(re.findall(r'"(guardian\.[\w.]+)"', TEXT))
+    words = {f"guardian.where.{w}" for w in ("device", "browser", "server", "none")} \
+        | {f"guardian.local.{w}" for w in ("on", "off", "unknown")}
+    assert used | words == keys, "every string is used, and every one used is there"
 
 
-# ── the routes, against the skill itself on a bus ────────────────────────────
-pytest.importorskip("fastapi")
-pytest.importorskip("httpx")
+def test_the_panel_reads_it():
+    described = pytest.importorskip("ovos_webui.described")
+    page, refs = described.check(PAGE, "ovos-skill-guardian")
+    assert [b["type"] for b in page["blocks"]] == ["text", "status", "choice", "status", "list", "list", "text"]
+    assert not refs["b1.a0"]["privileged"], "local only is the device's own switch, as by voice"
 
 
-@pytest.fixture
-def client(skill):  # noqa: F811 - the fixture
-    from fastapi import APIRouter, FastAPI
-    from fastapi.testclient import TestClient
-
-    class R:
-        api = APIRouter(prefix="/api")
-        privileged = APIRouter(prefix="/api")
-        config = None
-
-        @staticmethod
-        def need_bus():
-            return skill.bus
-
-    panel.routes(R)
-    app = FastAPI()
-    app.include_router(R.api)
-    app.include_router(R.privileged)
-    with TestClient(app) as c:
-        yield c, skill
+def answer(skill, msg_type, **data):
+    return test_skill.answer(skill, msg_type, **data)
 
 
-def test_what_went_out_today_and_this_week(client):
-    c, skill = client
+def test_what_went_out_by_period(skill):  # noqa: F811
     write(skill, [entry("wikipedia", "da.wikipedia.org", "ovos-skill-wikipedia")]
+          + [dict(entry("stt", "stt.example", "ovos-stt-plugin-server"), blocked=True)]
           + [entry("radio", "radio.example", "ovos-skill-radio", ago=3 * 86400)])
-    today = c.get("/api/guardian/network").json()
-    assert [s["kind"] for s in today["services"]] == ["wikipedia"]
-    week = c.get("/api/guardian/network", params={"period": "week"}).json()
-    assert {s["kind"] for s in week["services"]} == {"wikipedia", "radio"}
-    assert c.get("/api/guardian/network", params={"period": "ever"}).status_code == 400
+    today = answer(skill, pkg.GUARDIAN_NETWORK, period="today")
+    assert [s["kind"] for s in today["services"]] == ["wikipedia", "stt"]
+    assert (today["total"], today["refused"], today["service_count"]) == (2, 1, 2)
+    assert today["services"][0]["key"] == "wikipedia:da.wikipedia.org" and today["services"][0]["last_s"] > 0
+    first = today["entries"][0]
+    assert first["blocked"] and first["id"] == "0" and abs(first["when"] - time.time()) < 3600
+    week = answer(skill, pkg.GUARDIAN_NETWORK, period="week")
+    assert {s["kind"] for s in week["services"]} == {"wikipedia", "stt", "radio"}
+    assert answer(skill, pkg.GUARDIAN_NETWORK, period="ever")["services"] == today["services"], "today"
 
 
-def test_yesterday_stops_at_midnight(client):
-    from ovos_skill_guardian.panel import api
-    since, until = api.bounds("yesterday")
-    assert until == api.start_of_day(0) and 22 * 3600 < until - since < 26 * 3600
+def test_yesterday_stops_at_midnight():
+    since, until = pkg.period_bounds("yesterday")
+    assert until == pkg.start_of_today() and 22 * 3600 < until - since < 26 * 3600
 
 
-def test_the_status_and_the_switch(client, monkeypatch):
-    c, skill = client
+def test_the_status_and_the_switch(skill, monkeypatch):  # noqa: F811
     monkeypatch.setattr(pkg, "ANSWER_TIMEOUT", 0.2)
     skill.config_core["stt"] = {"module": "ovos-stt-plugin-server"}
-    assert c.get("/api/guardian/status").json()["local_only"] is None
-    from ovos_skill_guardian.panel import api
-    monkeypatch.setattr(api, "TIMEOUT", 0.3)
-    assert c.post("/api/guardian/local-only", json={"enabled": True}).status_code == 501
+    status = answer(skill, pkg.GUARDIAN_STATUS)
+    assert status["local"] == "unknown" and status["cannot_switch"] and not status["can_go_offline"]
+    assert status["hears"] == "server" and status["hears_server"] and not status["hears_browser"]
+    assert answer(skill, pkg.GUARDIAN_LOCAL_ONLY, enabled=True) == {"error": "guardian.local.cannot"}
     state = phal(skill, False)
-    assert c.post("/api/guardian/local-only", json={"enabled": True}).json() == {"enabled": True}
+    assert answer(skill, pkg.GUARDIAN_STATUS)["can_go_offline"]
+    assert answer(skill, pkg.GUARDIAN_LOCAL_ONLY, enabled=True) == {"enabled": True}
     assert state["enabled"] is True
-    status = c.get("/api/guardian/status").json()
-    assert status["local_only"] == {"enabled": True} and status["stt"]["where"] == "server"
+    status = answer(skill, pkg.GUARDIAN_STATUS)
+    assert status["local"] == "on" and status["can_go_online"] and not status["can_go_offline"]

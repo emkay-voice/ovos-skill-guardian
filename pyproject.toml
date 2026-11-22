@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ovos-skill-guardian"
-version = "0.1.0a8"
+version = "0.1.0a9"
 description = "OpenVoiceOS skill: your privacy by voice. What the assistant sent out today, what just happened, who hears what you say, and going offline (local only)"
 readme = "README.md"
 license = {text = "Apache-2.0"}
@@ -22,7 +22,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "ovos-bus-client", "fastapi", "httpx"]
+test = ["pytest", "ovos-bus-client"]
 
 [project.urls]
 Homepage = "https://github.com/emkay-voice/ovos-skill-guardian"
@@ -33,17 +33,12 @@ Icon = "https://raw.githubusercontent.com/emkay-voice/ovos-skill-guardian/main/r
 [project.entry-points."opm.skill"]
 "ovos-skill-guardian.emkay-voice" = "ovos_skill_guardian:GuardianSkill"
 
-# A page in ovos-control-panel (see panel/__init__.py). Only the panel loads it.
-[project.entry-points."opm.control_panel.page"]
-guardian = "ovos_skill_guardian.panel:PAGE"
-
 [tool.setuptools]
-packages = ["ovos_skill_guardian", "ovos_skill_guardian.panel"]
+packages = ["ovos_skill_guardian"]
 
 [tool.setuptools.package-dir]
 ovos_skill_guardian = ""
-"ovos_skill_guardian.panel" = "panel"
 
 [tool.setuptools.package-data]
-ovos_skill_guardian = ["locale/**/*", "settingsmeta.json"]
-"ovos_skill_guardian.panel" = ["page.html", "icon.svg", "i18n/*.json"]
+# controlpanel.json: the page in ovos-control-panel, read by the panel as data
+ovos_skill_guardian = ["locale/**/*", "settingsmeta.json", "controlpanel.json", "controlpanel.svg"]
