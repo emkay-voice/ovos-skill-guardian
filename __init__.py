@@ -164,7 +164,7 @@ RETRY_TIMEOUT = 60
 REFUSAL_GRACE = 2
 #: words in a dialog's name that mean "I could not" (cant_get_forecast, error_no_internet …)
 FAILURE_WORDS = ("cant", "cannot", "can_not", "unable", "error", "fail", "unavailable",
-                 "not_available", "no_internet", "no_network", "no_connection", "offline")
+                 "not_available", "no_internet", "no_network", "no_connection")
 
 
 def sounds_like_failure(dialog: str) -> bool:
@@ -414,6 +414,8 @@ class GuardianSkill(OVOSSkill):
         answer: nobody understood, nothing was said, or the skill said it
         could not (its dialog's name, e.g. cant_get_forecast). A question
         answered from what is on the device (offline wiki) is left alone."""
+        if turn["skill"] == self.skill_id:
+            return False  # Guardian's own answers ("I'm offline now")
         no_answer = turn["failed"] or not turn["answers"] or any(map(sounds_like_failure, turn["dialogs"]))
         if not no_answer:
             return False

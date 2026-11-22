@@ -301,6 +301,7 @@ def test_sounds_like_failure():
     assert pkg.sounds_like_failure("error.no.internet")
     assert not pkg.sounds_like_failure("current_weather")
     assert not pkg.sounds_like_failure(None)
+    assert not pkg.sounds_like_failure("offline_on"), "Guardian's own words"
 
 
 def test_offers_to_go_online_ask_again_and_go_back(skill, retried, monkeypatch):
@@ -351,7 +352,7 @@ def test_says_no_and_stays_offline(skill, retried, monkeypatch):
     assert state["enabled"] and not retried and last(skill) == "staying_offline"
 
 
-@pytest.mark.parametrize("case", ["answered_locally", "nothing_refused", "not_local_only", "turned_off"])
+@pytest.mark.parametrize("case", ["answered_locally", "nothing_refused", "not_local_only", "turned_off", "guardian_itself"])
 def test_does_not_offer(skill, retried, monkeypatch, case):
     phal(skill, case != "not_local_only")
     asked = []
@@ -363,6 +364,10 @@ def test_does_not_offer(skill, retried, monkeypatch, case):
         refused(skill)
     if case == "answered_locally":
         answer_with(skill, ctx, None, "Elise Meitner was an Austrian physicist.")
+    elif case == "guardian_itself":
+        skill._on_matched(Message("ovos.intent.matched", {"skill_id": skill.skill_id}, ctx))
+        answer_with(skill, ctx, "offline_on", "I'm offline now.")
+        skill._on_failure(Message("mycroft.skill.handler.error", {}, ctx))
     else:
         skill._on_failure(Message("complete_intent_failure", {}, ctx))
     skill._on_handled(Message("ovos.utterance.handled", {}, ctx))
