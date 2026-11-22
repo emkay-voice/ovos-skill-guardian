@@ -145,6 +145,11 @@
     "by": "blocked",
     "false": "guardian.net.all",
     "true": "guardian.net.refusedTitle"
+   },
+   "filter": {
+    "by": "who",
+    "label": "guardian.net.filter",
+    "all": "guardian.net.everyone"
    }
   },
   {

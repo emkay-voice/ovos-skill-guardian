@@ -33,5 +33,7 @@
  "guardian.net.services": "Servizi",
  "guardian.net.svcMeta": "{count} volte, l'ultima {last_s:time}. Chiesto da {who}.",
  "guardian.net.entryMeta": "{when:time} · {method} · {status} · {who}",
- "guardian.net.refusedTitle": "Rifiutate, perché il dispositivo era solo locale"
+ "guardian.net.refusedTitle": "Rifiutate, perché il dispositivo era solo locale",
+ "guardian.net.filter": "Mostra le richieste di",
+ "guardian.net.everyone": "tutti"
 }
