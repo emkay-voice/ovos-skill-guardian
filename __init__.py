@@ -253,7 +253,10 @@ class GuardianSkill(OVOSSkill):
                     "retry": bool((message.context or {}).get(RETRY_FLAG))}
         # the turns not handled yet, oldest first: OVOS handles a session's
         # utterances in turn, so ovos.utterance.handled ends the oldest
-        s["pending"] = (s.get("pending", []) + [s["now"]])[-5:]
+        # an answer to our own yes/no question is taken by get_response and is
+        # not handled as a turn of its own (no ovos.utterance.handled for it)
+        if not s.get("asking"):
+            s["pending"] = (s.get("pending", []) + [s["now"]])[-5:]
 
     def _turn(self, message):
         """The turn a message belongs to: the oldest not handled yet."""
@@ -459,7 +462,12 @@ class GuardianSkill(OVOSSkill):
         state = self.local_only("status")
         if not state or not state.get("enabled"):
             return  # not local only: a real network problem, not ours to solve
-        if self.ask_yesno("retry_online") != "yes":
+        self.turns[session]["asking"] = True
+        try:
+            answer = self.ask_yesno("retry_online")
+        finally:
+            self.turns[session]["asking"] = False
+        if answer != "yes":
             return self.speak_dialog("staying_offline")
         if self.local_only(enabled=False) is None:
             return self.speak_dialog("no_local_only")

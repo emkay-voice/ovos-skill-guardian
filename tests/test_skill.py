@@ -342,6 +342,24 @@ def test_a_refusal_reported_after_the_turn_ended_counts(skill, retried, monkeypa
     assert not state["enabled"] and retried
 
 
+def test_the_yes_is_not_a_turn_of_its_own(skill, retried, monkeypatch):
+    """The answer to the question is taken by get_response, and OVOS sends no
+    ovos.utterance.handled for it: the next handled is the retried question's."""
+    state = phal(skill, True)
+
+    def ask_yesno(*a, **k):
+        skill._on_utterance(Message("recognizer_loop:utterance", {"utterances": ["yes"]}, ctx))
+        return "yes"
+    monkeypatch.setattr(skill, "ask_yesno", ask_yesno)
+    ctx = question(skill)
+    refused(skill)
+    answer_with(skill, ctx, "cant_get_forecast")
+    skill._on_handled(Message("ovos.utterance.handled", {}, ctx))
+    skill._on_utterance(retried[-1])
+    skill._on_handled(Message("ovos.utterance.handled", {}, retried[-1].context))
+    assert state["enabled"] and last(skill) == "offline_again"
+
+
 def test_says_no_and_stays_offline(skill, retried, monkeypatch):
     state = phal(skill, True)
     monkeypatch.setattr(skill, "ask_yesno", lambda *a, **k: "no")
