@@ -38,5 +38,7 @@
  "guardian.net.everyone": "everyone",
  "guardian.retry.title": "Online for one question",
  "guardian.retry.label": "Offer to go online for a question that needs the internet",
- "guardian.retry.hint": "When the device is local only and a question can't be answered without the internet, Guardian asks whether to go online for that one question. Afterwards it goes back offline by itself – at the latest after a minute."
+ "guardian.retry.hint": "When the device is local only and a question can't be answered without the internet, Guardian asks whether to go online for that one question. Afterwards it goes back offline by itself – at the latest after a minute.",
+ "guardian.local.speech": "Speech recognition or the voice works on a server, so the device would neither hear nor speak offline. Choose on-device plugins under Voice and language first.",
+ "guardian.local.refused": "The device could not close the network, so it is not local only."
 }

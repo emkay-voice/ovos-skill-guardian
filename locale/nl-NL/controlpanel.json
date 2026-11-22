@@ -38,5 +38,7 @@
  "guardian.net.everyone": "iedereen",
  "guardian.retry.title": "Online voor één vraag",
  "guardian.retry.label": "Aanbieden om online te gaan voor een vraag die internet nodig heeft",
- "guardian.retry.hint": "Als het apparaat alleen lokaal werkt en een vraag niet zonder internet beantwoord kan worden, vraagt Guardian of hij voor die ene vraag online moet gaan. Daarna gaat hij vanzelf weer offline – uiterlijk na een minuut."
+ "guardian.retry.hint": "Als het apparaat alleen lokaal werkt en een vraag niet zonder internet beantwoord kan worden, vraagt Guardian of hij voor die ene vraag online moet gaan. Daarna gaat hij vanzelf weer offline – uiterlijk na een minuut.",
+ "guardian.local.speech": "Spraakherkenning of de stem werkt op een server, dus offline zou het apparaat niet horen en niet spreken. Kies eerst plugins op het apparaat onder Stem en taal.",
+ "guardian.local.refused": "Het apparaat kon het netwerk niet sluiten, dus het werkt niet alleen lokaal."
 }

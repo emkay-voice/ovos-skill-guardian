@@ -38,5 +38,7 @@
  "guardian.net.everyone": "todos",
  "guardian.retry.title": "Online para uma pergunta",
  "guardian.retry.label": "Oferecer ficar online para uma pergunta que precisa da internet",
- "guardian.retry.hint": "Quando o dispositivo está só local e uma pergunta não pode ter resposta sem internet, o Guardian pergunta se deve ficar online para essa pergunta. Depois volta a ficar offline sozinho – no máximo após um minuto."
+ "guardian.retry.hint": "Quando o dispositivo está só local e uma pergunta não pode ter resposta sem internet, o Guardian pergunta se deve ficar online para essa pergunta. Depois volta a ficar offline sozinho – no máximo após um minuto.",
+ "guardian.local.speech": "O reconhecimento de voz ou a voz funcionam num servidor, por isso offline o dispositivo não ouviria nem falaria. Escolha primeiro plugins no dispositivo em Voz e idioma.",
+ "guardian.local.refused": "O dispositivo não conseguiu fechar a rede, por isso não está só local."
 }

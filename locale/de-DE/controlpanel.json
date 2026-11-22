@@ -38,5 +38,7 @@
  "guardian.net.everyone": "allen",
  "guardian.retry.title": "Online für eine Frage",
  "guardian.retry.label": "Anbieten, für eine Frage, die das Internet braucht, online zu gehen",
- "guardian.retry.hint": "Wenn das Gerät nur lokal läuft und eine Frage ohne Internet nicht beantwortet werden kann, fragt Guardian, ob er für diese eine Frage online gehen soll. Danach geht er von selbst wieder offline – spätestens nach einer Minute."
+ "guardian.retry.hint": "Wenn das Gerät nur lokal läuft und eine Frage ohne Internet nicht beantwortet werden kann, fragt Guardian, ob er für diese eine Frage online gehen soll. Danach geht er von selbst wieder offline – spätestens nach einer Minute.",
+ "guardian.local.speech": "Spracherkennung oder Stimme laufen auf einem Server, offline würde das Gerät also weder hören noch sprechen. Wähle zuerst Plugins auf dem Gerät unter Stimme und Sprache.",
+ "guardian.local.refused": "Das Gerät konnte das Netzwerk nicht schließen, es läuft also nicht nur lokal."
 }
