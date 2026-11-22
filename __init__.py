@@ -205,6 +205,8 @@ class GuardianSkill(OVOSSkill):
         # local only and a question that needed the internet: offer to go
         # online for that one question, ask it again, and go back offline
         self.add_event("complete_intent_failure", self._on_failure, speak_errors=False)
+        # a skill's handler that raised (its "An error occurred …" has no dialog name)
+        self.add_event("mycroft.skill.handler.error", self._on_failure, speak_errors=False)
         self.add_event("ovos.utterance.handled", self._on_handled, speak_errors=False)
         # the control panel's page
         self.add_event(GUARDIAN_NETWORK, self.handle_network, speak_errors=False)

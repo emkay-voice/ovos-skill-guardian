@@ -318,6 +318,17 @@ def test_offers_to_go_online_ask_again_and_go_back(skill, retried, monkeypatch):
     assert state["enabled"] and last(skill) == "offline_again"
 
 
+def test_a_skill_that_raised_counts_as_no_answer(skill, retried, monkeypatch):
+    state = phal(skill, True)
+    monkeypatch.setattr(skill, "ask_yesno", lambda *a, **k: "yes")
+    ctx = question(skill)
+    refused(skill)
+    answer_with(skill, ctx, None, "An error occurred while processing a request in Weather Skill")
+    skill._on_failure(Message("mycroft.skill.handler.error", {"exception": "NewConnectionError"}, ctx))
+    skill._on_handled(Message("ovos.utterance.handled", {}, ctx))
+    assert not state["enabled"] and retried
+
+
 def test_says_no_and_stays_offline(skill, retried, monkeypatch):
     state = phal(skill, True)
     monkeypatch.setattr(skill, "ask_yesno", lambda *a, **k: "no")
