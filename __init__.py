@@ -160,6 +160,8 @@ TURN_MEMORY = 30 * 60
 RETRY_FLAG = "guardian_retry"
 #: back to local only after this long (s), even if the retried question never ends
 RETRY_TIMEOUT = 60
+#: how long after a turn without an answer a refused connection may still be reported (s)
+REFUSAL_GRACE = 2
 #: words in a dialog's name that mean "I could not" (cant_get_forecast, error_no_internet …)
 FAILURE_WORDS = ("cant", "cannot", "can_not", "unable", "error", "fail", "unavailable",
                  "not_available", "no_internet", "no_network", "no_connection", "offline")
@@ -412,9 +414,15 @@ class GuardianSkill(OVOSSkill):
         answer: nobody understood, nothing was said, or the skill said it
         could not (its dialog's name, e.g. cant_get_forecast). A question
         answered from what is on the device (offline wiki) is left alone."""
-        if not turn["refused"]:
+        no_answer = turn["failed"] or not turn["answers"] or any(map(sounds_like_failure, turn["dialogs"]))
+        if not no_answer:
             return False
-        return turn["failed"] or not turn["answers"] or any(map(sounds_like_failure, turn["dialogs"]))
+        # the refusal can be reported a moment after the turn ended (the
+        # device reports refused connections as it sees them): give it time
+        deadline = time.time() + REFUSAL_GRACE
+        while not turn["refused"] and time.time() < deadline:
+            time.sleep(0.1)
+        return bool(turn["refused"])
 
     def _on_handled(self, message):
         session = self._session(message)

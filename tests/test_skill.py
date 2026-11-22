@@ -289,6 +289,7 @@ def retried(skill, monkeypatch):
                  lambda m: asked.append(Message.deserialize(m) if isinstance(m, str) else m))
     monkeypatch.setattr(skill, "schedule_event", lambda *a, **k: None)
     monkeypatch.setattr(skill, "cancel_scheduled_event", lambda *a, **k: None)
+    monkeypatch.setattr(pkg, "REFUSAL_GRACE", 0.3)
     # settings outlive a test (they are a file); start from the default
     skill.settings["offer_online_retry"] = True
     yield asked
@@ -325,6 +326,17 @@ def test_a_skill_that_raised_counts_as_no_answer(skill, retried, monkeypatch):
     refused(skill)
     answer_with(skill, ctx, None, "An error occurred while processing a request in Weather Skill")
     skill._on_failure(Message("mycroft.skill.handler.error", {"exception": "NewConnectionError"}, ctx))
+    skill._on_handled(Message("ovos.utterance.handled", {}, ctx))
+    assert not state["enabled"] and retried
+
+
+def test_a_refusal_reported_after_the_turn_ended_counts(skill, retried, monkeypatch):
+    import threading
+    state = phal(skill, True)
+    monkeypatch.setattr(skill, "ask_yesno", lambda *a, **k: "yes")
+    ctx = question(skill)
+    skill._on_failure(Message("mycroft.skill.handler.error", {}, ctx))
+    threading.Timer(0.1, refused, (skill,)).start()
     skill._on_handled(Message("ovos.utterance.handled", {}, ctx))
     assert not state["enabled"] and retried
 
